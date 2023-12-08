@@ -278,19 +278,21 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
       ) : (
         <>
           <div className="flex flex-col space-y-4">
-            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-              {activeAccount.address === player2 ? (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="white" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                </div>
-              ) : (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="black" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
-                </div>
-              )}
-            </div>
+            {!isItem && (
+              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+                {activeAccount.address === player2 ? (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="white" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+                  </div>
+                ) : (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="black" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="relative">
               <Board
                 boardOrientation={activeAccount.address === player1 ? "white" : "black"}
@@ -313,28 +315,32 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
                 promotionToSquare={moveTo}
                 showPromotionDialog={showPromotionDialog}
               />
-              <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
-                <Popup className="bg-gray-50 w-[400px]">
-                  <h1 className="mb-4 text-center font-bold text-[20px]">
-                    {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
-                    {game.isDraw() && <div>Draw</div>}
-                  </h1>
-                </Popup>
-              </div>
-            </div>
-            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-              {activeAccount.address === player1 ? (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="white" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                </div>
-              ) : (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="black" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+              {((game.isGameOver() && !isItem) || (game.isDraw() && !isItem)) && (
+                <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
+                  <Popup className="bg-gray-50 w-[400px]">
+                    <h1 className="mb-4 text-center font-bold text-[20px]">
+                      {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
+                      {game.isDraw() && <div>Draw</div>}
+                    </h1>
+                  </Popup>
                 </div>
               )}
             </div>
+            {!isItem && (
+              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+                {activeAccount.address === player1 ? (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="white" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+                  </div>
+                ) : (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="black" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}
