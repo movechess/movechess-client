@@ -1,0 +1,144 @@
+@import "typefaces";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: $primaryFont, system-ui, sans-serif;
+  }
+}
+
+.main-body {
+  --tw-bg-opacity: 1;
+  position: relative;
+  // background-color: rgb(243 244 245 / var(--tw-bg-opacity));
+}
+
+.skyline-dex--input {
+  border-radius: 12px;
+}
+
+.skyline--input-hide-arrows {
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
+.skyline--input-box-shadow {
+  box-shadow:
+    inset 4px -4px 3px #ffffff,
+    inset 8px -8px 60px -5px #f1e9ec,
+    inset -7px 7px 5px -4px rgba(174, 174, 192, 0.4);
+  box-sizing: border-box;
+  transition: all 0.15s ease-out;
+}
+
+.skyline--account-box-shadow {
+  box-shadow:
+    inset 4px -4px 3px #716e70,
+    inset 8px -8px 60px -5px #ee26ac,
+    inset -7px 7px 5px -4px rgba(174, 174, 192, 0.4);
+  box-sizing: border-box;
+  transition: all 0.15s ease-out;
+}
+
+.popup-background {
+  background: rgba(255, 227, 227, 0.1) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+// card
+
+.nft-body {
+  height: 250px;
+  overflow: hidden;
+  width: 180px;
+  //   background: linear-gradient(45deg, #061de3, #e306ca);
+  //   font-family: Helvetica, sans-serif;
+  color: rgb(211, 211, 211);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nft-container {
+  width: 150px;
+  height: 200px;
+  perspective: 500px;
+}
+
+.nft-container:hover > .card {
+  cursor: pointer;
+  transform: rotateY(180deg);
+}
+
+.card {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  transition: transform 500ms;
+  transform-style: preserve-3d;
+}
+
+.nft-front,
+.nft-back {
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 0 5px 2px rgba(50, 50, 50, 0.25);
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+// .nft-front {
+//   background-image: url(https://source.unsplash.com/random/350x500);
+// }
+
+.nft-back {
+  background-color: #3a3a3a;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+}
+
+.transca--input {
+  border-radius: 12px;
+}
+
+.color-light {
+  color: #09090a;
+}
+
+.color-light-input {
+  background-color: #ffffff;
+}
+
+.color-light-placeholder {
+  &::placeholder {
+    color: #d2d6d9;
+  }
+}
+
+.color-light-border {
+  border-color: #d8dcdf;
+}
+
+.color-light-input-error {
+  border: 1px solid #ff3a46;
+}
+
+.transca--input-hide-arrows {
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+

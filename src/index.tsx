@@ -1,19 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { alephzeroTestnet, UseInkathonProvider } from "@scio-labs/use-inkathon";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./App";
+import Game from "./components/Chess/Game";
+import PopupProvider from "./components/Popup/PopupProvider";
+import "./styles/main.scss";
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  { path: "/game/:id", element: <Game /> },
+]);
+
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <UseInkathonProvider appName="React Example dApp" defaultChain={alephzeroTestnet} connectOnInit={false}>
+      <PopupProvider>
+        <RouterProvider router={router} />
+      </PopupProvider>
+    </UseInkathonProvider>
+  </React.StrictMode>,
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
