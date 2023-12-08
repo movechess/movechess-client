@@ -1,9 +1,13 @@
 import { useInkathon } from "@scio-labs/use-inkathon";
+import { ChessBishop } from "@styled-icons/fa-solid";
 import { Chess, Square } from "chess.js";
 import { useEffect, useState } from "react";
 import { Chessboard as Board } from "react-chessboard";
+import { truncateSuiTx } from "../../services/address";
 import { socket } from "../../services/socket";
 import api from "../../utils/api";
+import Popup from "../Popup/Popup";
+import { usePopups } from "../Popup/PopupProvider";
 
 const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player_1?: string; player_2?: string }> = ({ isItem, fen, game_id, player_1, player_2 }) => {
   const { connect, error, isConnected, activeChain, activeAccount, disconnect } = useInkathon();
@@ -17,8 +21,13 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
   const [optionSquares, setOptionSquares] = useState({});
   const [moveSquares, setMoveSquares] = useState({});
+  const [isGameOver, setIsGameOver] = useState(new Chess(fen).isGameOver());
+  const [isGameDraw, setIsGameDraw] = useState(new Chess(fen).isDraw());
 
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [isHiddenGameStatus, setIsHiddenGameStatus] = useState(false);
+
+  const { addPopup } = usePopups();
 
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
@@ -225,13 +234,31 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
     });
   }
 
-  console.log("7s200:index", game.fen());
+  console.log("7s200:index", game.isGameOver(), game.isDraw());
+
+  const onShowGameStatus = () => {
+    if (game.isGameOver()) {
+      return addPopup({
+        Component: () => {
+          return (
+            <>
+              <Popup className="bg-gray-50 min-w-[400px] max-w-[500px]">
+                <h1 className="mb-4 text-center font-bold text-[20px]">Get RWAs NFT by shipping asset</h1>
+              </Popup>
+            </>
+          );
+        },
+      });
+    } else {
+      return <></>;
+    }
+  };
 
   return (
     <div>
-      <>{game.isGameOver() && <div>Game over</div>}</>
+      {/* <>{game.isGameOver() && <div>Game over</div>}</>
       <>{game.isDraw() && <div>Game draw</div>}</>
-      <>{game.moves().length === 0 && <div>posible move ===0</div>}</>
+      <>{game.moves().length === 0 && <div>posible move ===0</div>}</> */}
       {isItem && isSocketConnected ? (
         <Board
           position={game.fen()}
@@ -249,27 +276,67 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
           showPromotionDialog={showPromotionDialog}
         />
       ) : (
-        <Board
-          boardOrientation={activeAccount.address === player1 ? "white" : "black"}
-          position={game.fen()}
-          id="ClickToMove"
-          animationDuration={200}
-          arePiecesDraggable={false}
-          onSquareClick={onSquareClick}
-          onSquareRightClick={onSquareRightClick}
-          onPromotionPieceSelect={onPromotionPieceSelect}
-          customBoardStyle={{
-            borderRadius: "4px",
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-          }}
-          customSquareStyles={{
-            ...moveSquares,
-            ...optionSquares,
-            ...rightClickedSquares,
-          }}
-          promotionToSquare={moveTo}
-          showPromotionDialog={showPromotionDialog}
-        />
+        <>
+          <div className="flex flex-col space-y-4">
+            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+              {activeAccount.address === player2 ? (
+                <div className="flex justify-center items-center space-x-2">
+                  <ChessBishop color="white" size={26} />
+                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center space-x-2">
+                  <ChessBishop color="black" size={26} />
+                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                </div>
+              )}
+            </div>
+            <div className="relative">
+              <Board
+                boardOrientation={activeAccount.address === player1 ? "white" : "black"}
+                position={game.fen()}
+                id="ClickToMove"
+                animationDuration={200}
+                arePiecesDraggable={false}
+                onSquareClick={onSquareClick}
+                onSquareRightClick={onSquareRightClick}
+                onPromotionPieceSelect={onPromotionPieceSelect}
+                customBoardStyle={{
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+                }}
+                customSquareStyles={{
+                  ...moveSquares,
+                  ...optionSquares,
+                  ...rightClickedSquares,
+                }}
+                promotionToSquare={moveTo}
+                showPromotionDialog={showPromotionDialog}
+              />
+              <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
+                <Popup className="bg-gray-50 w-[400px]">
+                  <h1 className="mb-4 text-center font-bold text-[20px]">
+                    {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
+                    {game.isDraw() && <div>Draw</div>}
+                  </h1>
+                </Popup>
+              </div>
+            </div>
+            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+              {activeAccount.address === player1 ? (
+                <div className="flex justify-center items-center space-x-2">
+                  <ChessBishop color="white" size={26} />
+                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center space-x-2">
+                  <ChessBishop color="black" size={26} />
+                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

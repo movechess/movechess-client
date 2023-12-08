@@ -30,12 +30,13 @@ const Game: React.FC<{}> = () => {
   return (
     <>
       <Header />
-      <div className="p-4 md:ml-64 mt-14 bg-gray-100 h-screen">
-        <div>
+      <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">
+        {/* <div>
           <>{game.isGameOver() && <div>Game over</div>}</>
           <>{game.isDraw() && <div>Game draw</div>}</>
           <>{game.moves().length === 0 && <div>posible move ===0</div>}</>
-        </div>
+        </div> */}
+
         <div style={{ height: "500px", width: "500px", cursor: "pointer" }}>
           <ChessBoard fen={game.fen()} game_id={location.pathname.split("/")[2]} />
         </div>
