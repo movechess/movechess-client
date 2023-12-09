@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const restApi = axios.create({
-  baseURL: "https://engine.movechess.com",
+  baseURL: process.env.REACT_APP_CHESS_ENGINE_URL!,
 });
 
 export const setAuthToken = (token: string) => {

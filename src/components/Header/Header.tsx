@@ -61,7 +61,7 @@ const Header: React.FC<{}> = () => {
                   }}
                   className="cursor-pointer flex ml-2 md:mr-7"
                 >
-                  <img src="/icons/transca-vault-logo.svg" className="h-6" alt="Transca vault Logo" />
+                  <img src="/MoveChess.png" className="h-[32px] w-[32px]" alt="Transca vault Logo" />
                 </div>
                 {/* <div className="">
                   <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => onHanleOpenPopUpGetRWAsNFT()}>
@@ -112,7 +112,7 @@ const Header: React.FC<{}> = () => {
           <div className="mx-auto flex flex-col space-y-4 w-full ">
             <div
               onClick={() => {
-                navigate("/admin");
+                // navigate("/admin");
               }}
               className="cursor-pointer text-white font-bold flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%"
             >
@@ -122,7 +122,7 @@ const Header: React.FC<{}> = () => {
             </div>
             <div
               onClick={() => {
-                openInNewTab("https://drive.google.com/drive/u/1/folders/1JaFIvgmKbh0yX6prfmSw2WmkcSt4Udbe");
+                // openInNewTab("https://drive.google.com/drive/u/1/folders/1JaFIvgmKbh0yX6prfmSw2WmkcSt4Udbe");
               }}
               className="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group"
             >
@@ -140,7 +140,7 @@ const Header: React.FC<{}> = () => {
             </div>
             <div
               onClick={() => {
-                openInNewTab("https://drive.google.com/drive/u/1/folders/1JaFIvgmKbh0yX6prfmSw2WmkcSt4Udbe");
+                // openInNewTab("https://drive.google.com/drive/u/1/folders/1JaFIvgmKbh0yX6prfmSw2WmkcSt4Udbe");
               }}
               className="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group"
             >
