@@ -125,16 +125,14 @@ export function ConnectionSettings() {
                 <div className="text-[16px] font-bold">Password</div>
                 <div className="text-[13px]">Enter Password</div>
 
-                <div className="max-w-[500px] flex justify-between items-center border rounded-xl my-2">
-                  <div className="px-2">
-                    <Input
-                      className={cn("!w-full border-none border-transparent focus:border-transparent focus:!ring-0 !text-[14px] !pl-0 !pt-1 !pb-1 !leading-[30px]")}
-                      placeholder="password"
-                      autoComplete="off"
-                      type="password"
-                      {...register("password", { required: { value: true, message: "Please fill duration" } })}
-                    />
-                  </div>
+                <div className="max-w-[500px] flex justify-between items-center border rounded-md my-2">
+                  <Input
+                    className={cn("!text-center border-none !rounded-md border-transparent focus:border-transparent focus:!ring-0 !text-[14px] !pl-0 !pt-1 !pb-1 !leading-[30px]")}
+                    placeholder="password"
+                    autoComplete="off"
+                    type="password"
+                    {...register("password", { required: { value: true, message: "Please fill duration" } })}
+                  />
                 </div>
                 <div className="text-red-500">{errors.password?.message}</div>
               </div>

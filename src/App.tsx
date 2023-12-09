@@ -26,8 +26,10 @@ function App() {
             setGames(res.data.games);
           }
         })
-        .catch(() => {
-          // localStorage.removeItem("token");
+        .catch((error) => {
+          if (error.response.status === 403) {
+            localStorage.removeItem("token");
+          }
         });
   }, [isConnected]);
 
