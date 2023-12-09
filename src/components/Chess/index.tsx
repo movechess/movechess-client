@@ -1,16 +1,30 @@
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ContractPromise } from "@polkadot/api-contract";
+import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import { useInkathon } from "@scio-labs/use-inkathon";
 import { ChessBishop } from "@styled-icons/fa-solid";
 import { Chess, Square } from "chess.js";
 import { useEffect, useState } from "react";
 import { Chessboard as Board } from "react-chessboard";
+import { useNavigate } from "react-router-dom";
+import abi from "../../abi/movechesscontract.json";
 import { truncateSuiTx } from "../../services/address";
 import { socket } from "../../services/socket";
-import api from "../../utils/api";
+import { apiHeader, default as api, default as restApi } from "../../utils/api";
+import { getGasLimit } from "../../utils/gas";
+import Button from "../Button/Button";
 import Popup from "../Popup/Popup";
 import { usePopups } from "../Popup/PopupProvider";
 
-const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player_1?: string; player_2?: string }> = ({ isItem, fen, game_id, player_1, player_2 }) => {
-  const { connect, error, isConnected, activeChain, activeAccount, disconnect } = useInkathon();
+const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player_1?: string; player_2?: string; raw?: any }> = ({
+  isItem,
+  fen,
+  game_id,
+  player_1,
+  player_2,
+  raw,
+}) => {
+  const { connect, error, isConnected, activeChain, activeAccount, disconnect, activeSigner } = useInkathon();
   const [game, setGame] = useState(new Chess(fen));
   const [player1, setPlayer1] = useState("");
   const [player2, setPlayer2] = useState("");
@@ -26,6 +40,11 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
 
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [isHiddenGameStatus, setIsHiddenGameStatus] = useState(false);
+
+  const [isDeposit, setIsDeposit] = useState(false);
+
+  const [isClaim, setIsClaim] = useState(false);
+  const navigate = useNavigate();
 
   const { addPopup } = usePopups();
 
@@ -46,7 +65,6 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log("7s200:", res.data.game);
           setGame(new Chess(res.data.game.fen));
           setPlayer1(res.data.game.player_1);
           setPlayer2(res.data.game.player_2);
@@ -234,26 +252,89 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
     });
   }
 
-  console.log("7s200:index", game.isGameOver(), game.isDraw());
-
-  const onShowGameStatus = () => {
-    if (game.isGameOver()) {
-      return addPopup({
-        Component: () => {
-          return (
-            <>
-              <Popup className="bg-gray-50 min-w-[400px] max-w-[500px]">
-                <h1 className="mb-4 text-center font-bold text-[20px]">Get RWAs NFT by shipping asset</h1>
-              </Popup>
-            </>
-          );
+  // console.log("7s200:index", game.isGameOver(), game.isDraw());
+  async function Deposit() {
+    const provider = new WsProvider("wss://ws.test.azero.dev");
+    const api = new ApiPromise({
+      provider,
+      rpc: jsonrpc,
+      types: {
+        ContractsPsp34Id: {
+          _enum: {
+            U8: "u8",
+            U16: "u16",
+            U32: "u32",
+            U64: "u64",
+            U128: "u128",
+            Bytes: "Vec<u8>",
+          },
         },
+      },
+    });
+    api.on("connected", async () => {
+      api.isReady.then((api) => {
+        console.log("Smartnet AZERO Connected");
       });
-    } else {
-      return <></>;
+    });
+    api.on("ready", async () => {
+      if (activeAccount) {
+        setIsDeposit(true);
+
+        const contract = new ContractPromise(api, abi, "5CRDBTruY3hLTCQmn7MTnULpL3ALXLMEUWLDa826hyFftKkK");
+
+        //@ts-ignore
+
+        const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "matchGame", contract, { value: 10000000000000 }, [raw.pays.gameIndex]);
+        const { value: gasLimit } = gasLimitResult;
+        console.log("7s200:", gasLimit, raw.pays);
+        await api.setSigner(activeSigner!);
+        // @ts-ignore
+        const txn = await contract.tx.matchGame({ value: 10000000000000, gasLimit: gasLimit, storageDepositLimit: null }, raw.pays.gameIndex);
+        const signtx = await txn
+          .signAndSend(activeAccount.address, (result) => {
+            if (result.status.isInBlock) {
+              console.log("in a block");
+            } else if (result.status.isFinalized) {
+              console.log("finalized");
+            }
+          })
+          .catch((e) => {
+            console.log("e", e);
+          });
+        if (signtx) {
+          navigate(`/game/${raw.game_id}`);
+        }
+
+        setIsDeposit(false);
+        return false;
+      }
+    });
+    api.on("error", (err) => {
+      setIsDeposit(false);
+      console.log("error", err);
+    });
+  }
+  console.log("7s200:raw", raw);
+  const onClaim = async () => {
+    setIsClaim(true);
+    const res = await restApi
+      .post(
+        "/update-winner-v2",
+        {
+          params: { game_id: raw.game_id },
+        },
+        { headers: apiHeader },
+      )
+      .then((data) => {
+        setIsClaim(false);
+
+        return data;
+      });
+    if (res) {
+      navigate(`/game/${raw.game_id}`);
+      setIsClaim(false);
     }
   };
-
   return (
     <div>
       {/* <>{game.isGameOver() && <div>Game over</div>}</>
@@ -321,8 +402,30 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
                     <h1 className="mb-4 text-center font-bold text-[20px]">
                       {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
                       {game.isDraw() && <div>Draw</div>}
+                      {(raw as any).isPaymentMatch &&
+                        game.isGameOver() &&
+                        (((raw as any).turn_player === "w" && activeAccount.address === raw.player_1) ||
+                          ((raw as any).turn_player === "b" && activeAccount.address === raw.player_2)) && (
+                          <Button
+                            className="mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]"
+                            onClick={() => onClaim()}
+                            disabled={raw.isClaimed}
+                          >
+                            {raw.isClaimed ? "Claimed" : "Claim"}
+                          </Button>
+                        )}
                     </h1>
                   </Popup>
+                </div>
+              )}
+              {raw && raw.player_2 === activeAccount?.address && raw.pays.player2 === 0 && (
+                <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
+                  <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
+                    <div className="font-bold">Deposit 10 AZ0 to play this match</div>
+                    <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => Deposit()} loading={isDeposit}>
+                      Deposit
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

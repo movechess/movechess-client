@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const api = axios.create({
+const restApi = axios.create({
   baseURL: process.env.REACT_APP_CHESS_ENGINE_URL!,
 });
 
@@ -12,4 +12,4 @@ export const setAuthToken = (token: string) => {
 export const apiHeader = {
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 };
-export default api;
+export default restApi;

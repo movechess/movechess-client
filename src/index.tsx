@@ -1,7 +1,7 @@
-import { alephzeroTestnet, UseInkathonProvider } from "@scio-labs/use-inkathon";
+import { alephzeroTestnet, SubstrateDeployment, UseInkathonProvider } from "@scio-labs/use-inkathon";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import App from "./App";
 import Game from "./components/Chess/Game";
 import PopupProvider from "./components/Popup/PopupProvider";
@@ -9,18 +9,38 @@ import "./styles/main.scss";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    element: (
+      <PopupProvider>
+        <Outlet />
+      </PopupProvider>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      { path: "/game/:id", element: <Game /> },
+    ],
   },
-  { path: "/game/:id", element: <Game /> },
 ]);
+
+export const getDeployments = async (): Promise<SubstrateDeployment[]> => {
+  return [
+    {
+      contractId: "5CRDBTruY3hLTCQmn7MTnULpL3ALXLMEUWLDa826hyFftKkK",
+      networkId: alephzeroTestnet.network,
+      abi: await import(`./abi/movechesscontract.json`),
+      address: "5EXVePY8xnyfGKQjrbvQUgH9bdeXb5YszFqvhhXCnWYT6kBw",
+    },
+  ];
+};
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
-    <UseInkathonProvider appName="React Example dApp" defaultChain={alephzeroTestnet} connectOnInit={false}>
+    <UseInkathonProvider appName="React Example dApp" defaultChain={alephzeroTestnet} connectOnInit={false} deployments={getDeployments()}>
       <PopupProvider>
-        <RouterProvider router={router} />
+        <RouterProvider router={router}></RouterProvider>
       </PopupProvider>
     </UseInkathonProvider>
   </React.StrictMode>,
