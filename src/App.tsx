@@ -135,7 +135,15 @@ function App() {
         </div>
         <div>
           <div className="text-[32px] font-bold text-center">Lobby</div>
-          <div>{hasJWT() ? <div className="w-full grid grid-cols-3 gap-4">{onShowGames()}</div> : <>Login</>}</div>
+          <div>
+            {hasJWT() ? (
+              <div className="w-full grid grid-cols-3 gap-4">{onShowGames()}</div>
+            ) : (
+              <div>
+                <div className="text-center font-bold">Login to play</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
