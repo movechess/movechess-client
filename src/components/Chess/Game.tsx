@@ -56,12 +56,12 @@ const Game: React.FC<{}> = () => {
       .then(async (res) => {
         if (res.status === 200) {
           const data = res.data.game;
-          console.log("7s200:data", data);
           setRaw(data);
           setGame(new Chess(res.data.game.fen));
           setPlayer1(res.data.game.player_1);
           setPlayer2(res.data.game.player_2);
           setTurnPlay(res.data.game.turn_player);
+          console.log("7s200:data", data);
         }
       })
       .catch((err) => {
@@ -70,20 +70,20 @@ const Game: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    function onConnect() {
-      setIsSocketConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsSocketConnected(false);
-    }
-    // function onNewMove(room: any) {
-    //   console.log("new move", room);
-    //   if (room.fen) {
-    //     setGame(new Chess(room.fen));
-    //     setTurnPlay(room.turn);
-    //   }
+    // function onConnect() {
+    //   setIsSocketConnected(true);
     // }
+
+    // function onDisconnect() {
+    //   setIsSocketConnected(false);
+    // }
+    // // function onNewMove(room: any) {
+    // //   console.log("new move", room);
+    // //   if (room.fen) {
+    // //     setGame(new Chess(room.fen));
+    // //     setTurnPlay(room.turn);
+    // //   }
+    // // }
 
     function onNewMove(room: any) {
       console.log("new move", room);
@@ -93,18 +93,18 @@ const Game: React.FC<{}> = () => {
       }
     }
 
-    socket.on("connection", onConnect);
-    socket.on("disconnect", onDisconnect);
+    // socket.on("connection", onConnect);
+    // socket.on("disconnect", onDisconnect);
     socket.on("newMove", onNewMove);
-    socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
+    // socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
     // socket.on("newMove", onNewMove);
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
+      // socket.off("connect", onConnect);
+      // socket.off("disconnect", onDisconnect);
       // socket.off("newMove", onNewMove);
+      socket.off("nowMove", onNewMove);
     };
   }, []);
-  console.log(4, isSocketConnected);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
