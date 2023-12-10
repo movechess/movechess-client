@@ -85,8 +85,17 @@ const Game: React.FC<{}> = () => {
     //   }
     // }
 
+    function onNewMove(room: any) {
+      console.log("new move", room);
+      if (room.fen && room.game_id === location.pathname.split("/")[2]) {
+        setGame(new Chess(room.fen));
+        setTurnPlay(room.turn);
+      }
+    }
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("newMove", onNewMove);
     socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
     // socket.on("newMove", onNewMove);
     return () => {
@@ -94,15 +103,8 @@ const Game: React.FC<{}> = () => {
       socket.off("disconnect", onDisconnect);
       // socket.off("newMove", onNewMove);
     };
-  });
-  function onNewMove(room: any) {
-    console.log("new move", room);
-    if (room.fen && room.game_id === location.pathname.split("/")[2]) {
-      setGame(new Chess(room.fen));
-      setTurnPlay(room.turn);
-    }
-  }
-  socket.on("newMove", onNewMove);
+  }, []);
+  console.log(3);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
