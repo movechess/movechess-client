@@ -90,7 +90,9 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
     socket.on("disconnect", onDisconnect);
     socket.emit("joinGame", { game_id: game_id });
     socket.on("newMove", function (room) {
+      console.log("new move", room);
       if (room.fen) {
+        console.log("7s200:fen", fen);
         setGame(new Chess(room.fen));
         setTurnPlay(room.turn);
       }
@@ -176,8 +178,7 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
           to: square,
           promotion: "q",
         });
-        console.log("7s200:move", move);
-        console.log("game.fend", game.fen());
+
         socket.emit(game_id, {
           moveFrom,
           square,
@@ -231,7 +232,7 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
       ...rightClickedSquares,
       [square]: rightClickedSquares[square] && rightClickedSquares[square].backgroundColor === colour ? undefined : { backgroundColor: colour },
     });
-    console.log("7s200:onSquareRightClick", rightClickedSquares);
+    // console.log("7s200:onSquareRightClick", rightClickedSquares);
   }
 
   if (!fen && game.board()) {
