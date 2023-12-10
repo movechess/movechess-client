@@ -11,16 +11,16 @@ import abi from "../../abi/movechesscontract.json";
 import { truncateSuiTx } from "../../services/address";
 import { socket } from "../../services/socket";
 import { apiHeader, default as restApi } from "../../utils/api";
+import { getGasLimit } from "../../utils/gas";
 import Button from "../Button/Button";
 import Header from "../Header/Header";
-
 import Popup from "../Popup/Popup";
 
 const Game: React.FC<{}> = () => {
   // const { contract, address: contractAddress } = useRegisteredContract("5CRDBTruY3hLTCQmn7MTnULpL3ALXLMEUWLDa826hyFftKkK");
   const { connect, error, isConnected, activeChain, activeAccount, disconnect, activeSigner } = useInkathon();
 
-  const [game, setGame] = useState(new Chess());
+  const [game, setGame] = useState<Chess | any>();
   const [raw, setRaw] = useState<any>(null);
 
   const [player1, setPlayer1] = useState("");
@@ -56,12 +56,11 @@ const Game: React.FC<{}> = () => {
       .then(async (res) => {
         if (res.status === 200) {
           const data = res.data.game;
+          setGame(new Chess(data.fen));
           setRaw(data);
-          setGame(new Chess(res.data.game.fen));
-          setPlayer1(res.data.game.player_1);
-          setPlayer2(res.data.game.player_2);
-          setTurnPlay(res.data.game.turn_player);
-          console.log("7s200:data", data);
+          setPlayer1(data.player_1);
+          setPlayer2(data.player_2);
+          setTurnPlay(data.turn_player);
         }
       })
       .catch((err) => {
@@ -70,41 +69,38 @@ const Game: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    // function onConnect() {
-    //   setIsSocketConnected(true);
-    // }
-
-    // function onDisconnect() {
-    //   setIsSocketConnected(false);
-    // }
-    // // function onNewMove(room: any) {
-    // //   console.log("new move", room);
-    // //   if (room.fen) {
-    // //     setGame(new Chess(room.fen));
-    // //     setTurnPlay(room.turn);
-    // //   }
-    // // }
+    function onConnect() {
+      console.log(1);
+      setIsSocketConnected(true);
+    }
 
     function onNewMove(room: any) {
       console.log("new move", room);
-      if (room.fen && room.game_id === location.pathname.split("/")[2]) {
+      if (room.fen) {
         setGame(new Chess(room.fen));
         setTurnPlay(room.turn);
       }
     }
+    socket.connect();
 
-    // socket.on("connection", onConnect);
-    // socket.on("disconnect", onDisconnect);
-    socket.on("newMove", onNewMove);
-    // socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
-    // socket.on("newMove", onNewMove);
+    socket.on("connection", onConnect);
+
+    socket.on("newmove", onNewMove);
     return () => {
-      // socket.off("connect", onConnect);
-      // socket.off("disconnect", onDisconnect);
-      // socket.off("newMove", onNewMove);
-      socket.off("nowMove", onNewMove);
+      socket.off("connection", onConnect);
+      socket.off("newmove", onNewMove);
     };
   }, []);
+
+  // function onNewMove(room: any) {
+  //   console.log("new move", room);
+  //   if (room.fen) {
+  //     setGame(new Chess(room.fen));
+  //     setTurnPlay(room.turn);
+  //   }
+  // }
+
+  // socket.on("newmove", onNewMove);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
@@ -117,7 +113,7 @@ const Game: React.FC<{}> = () => {
     }
 
     const newSquares: any = {};
-    moves.map((move) => {
+    moves.map((move: any) => {
       newSquares[move.to] = {
         background:
           game.get(move.to) && game.get(move.to).color !== game.get(square).color
@@ -182,8 +178,8 @@ const Game: React.FC<{}> = () => {
         });
 
         socket.emit("move", {
-          moveFrom,
-          square,
+          from: moveFrom,
+          to: square,
           game_id: location.pathname.split("/")[2],
           turn: game.turn(),
           address: activeAccount?.address,
@@ -268,7 +264,6 @@ const Game: React.FC<{}> = () => {
         const contract = new ContractPromise(api, abi, "5CRDBTruY3hLTCQmn7MTnULpL3ALXLMEUWLDa826hyFftKkK");
 
         //@ts-ignore
-
         const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "matchGame", contract, { value: 10000000000000 }, [raw.pays.gameIndex]);
         const { value: gasLimit } = gasLimitResult;
         console.log("7s200:", gasLimit, raw.pays);
@@ -279,8 +274,10 @@ const Game: React.FC<{}> = () => {
           .signAndSend(activeAccount.address, (result) => {
             if (result.status.isInBlock) {
               console.log("in a block");
+              window.location.reload();
             } else if (result.status.isFinalized) {
               console.log("finalized");
+              window.location.reload();
             }
           })
           .catch((e) => {
@@ -324,103 +321,106 @@ const Game: React.FC<{}> = () => {
   const onShowFen = () => {
     return game.fen();
   };
-
-  return (
-    <>
-      <Header />
-      <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">
-        <div className="relative" style={{ height: "500px", width: "500px", cursor: "pointer" }}>
-          <div className="flex flex-col space-y-4">
-            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-              {activeAccount?.address === player2 ? (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="white" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                </div>
-              ) : (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="black" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
-                </div>
-              )}
-            </div>
-            <div className="relative">
-              <Board
-                boardOrientation={activeAccount?.address === player1 ? "white" : "black"}
-                position={onShowFen()}
-                id="ClickToMove"
-                animationDuration={200}
-                arePiecesDraggable={false}
-                onSquareClick={onSquareClick}
-                onSquareRightClick={onSquareRightClick}
-                onPromotionPieceSelect={onPromotionPieceSelect}
-                customBoardStyle={{
-                  borderRadius: "4px",
-                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-                }}
-                customSquareStyles={{
-                  ...moveSquares,
-                  ...optionSquares,
-                  ...rightClickedSquares,
-                }}
-                promotionToSquare={moveTo}
-                showPromotionDialog={showPromotionDialog}
-              />
-              {(game.isGameOver() || game.isDraw()) && (
-                <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
-                  <Popup className="bg-gray-50 w-[400px]">
-                    <h1 className="mb-4 text-center font-bold text-[20px]">
-                      {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
-                      {game.isDraw() && <div>Draw</div>}
-                      {(raw as any).isPaymentMatch &&
-                        game.isGameOver() &&
-                        (((raw as any).turn_player === "w" && activeAccount?.address! === raw.player_1) ||
-                          ((raw as any).turn_player === "b" && activeAccount?.address! === raw.player_2)) && (
-                          <Button
-                            className="mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]"
-                            onClick={() => onClaim()}
-                            disabled={raw.isClaimed}
-                            loading={isClaim}
-                          >
-                            {raw.isClaimed ? "Claimed" : "Claim"}
-                          </Button>
-                        )}
-                    </h1>
-                  </Popup>
-                </div>
-              )}
-              {raw && raw.isPaymentMatch && raw.player_1 !== activeAccount?.address && raw.pays.player2 === 0 && (
-                <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
-                  <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
-                    <div className="font-bold">Deposit 10 AZ0 to play this match</div>
-                    <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => Deposit()} loading={isDeposit}>
-                      Deposit
-                    </Button>
+  if (!game || !raw) {
+    return <></>;
+  } else {
+    return (
+      <>
+        <Header />
+        <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">
+          <div className="relative" style={{ height: "500px", width: "500px", cursor: "pointer" }}>
+            <div className="flex flex-col space-y-4">
+              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+                {activeAccount?.address === player2 ? (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="white" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="black" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <Board
+                  boardOrientation={activeAccount?.address === player1 ? "white" : "black"}
+                  position={game.fen()}
+                  id="ClickToMove"
+                  animationDuration={200}
+                  arePiecesDraggable={false}
+                  onSquareClick={onSquareClick}
+                  onSquareRightClick={onSquareRightClick}
+                  onPromotionPieceSelect={onPromotionPieceSelect}
+                  customBoardStyle={{
+                    borderRadius: "4px",
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+                  }}
+                  customSquareStyles={{
+                    ...moveSquares,
+                    ...optionSquares,
+                    ...rightClickedSquares,
+                  }}
+                  promotionToSquare={moveTo}
+                  showPromotionDialog={showPromotionDialog}
+                />
+                {(game.isGameOver() || game.isDraw()) && (
+                  <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
+                    <Popup className="bg-gray-50 w-[400px]">
+                      <h1 className="mb-4 text-center font-bold text-[20px]">
+                        {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
+                        {game.isDraw() && <div>Draw</div>}
+                        {(raw as any).isPaymentMatch &&
+                          game.isGameOver() &&
+                          (((raw as any).turn_player === "w" && activeAccount?.address! === raw.player_1) ||
+                            ((raw as any).turn_player === "b" && activeAccount?.address! === raw.player_2)) && (
+                            <Button
+                              className="mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]"
+                              onClick={() => onClaim()}
+                              disabled={raw.isClaimed}
+                              loading={isClaim}
+                            >
+                              {raw.isClaimed ? "Claimed" : "Claim"}
+                            </Button>
+                          )}
+                      </h1>
+                    </Popup>
+                  </div>
+                )}
+                {raw && raw.isPaymentMatch && raw.player_1 !== activeAccount?.address && raw.pays.player2 === 0 && (
+                  <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
+                    <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
+                      <div className="font-bold">Deposit 10 AZ0 to play this match</div>
+                      <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => Deposit()} loading={isDeposit}>
+                        Deposit
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
+                {activeAccount?.address === player1 ? (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="white" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+                  </div>
+                ) : (
+                  <div className="flex justify-center items-center space-x-2">
+                    <ChessBishop color="black" size={26} />
+                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-              {activeAccount?.address === player1 ? (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="white" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                </div>
-              ) : (
-                <div className="flex justify-center items-center space-x-2">
-                  <ChessBishop color="black" size={26} />
-                  <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
-                </div>
-              )}
-            </div>
+            {/* <ChessBoard raw={raw} fen={game.fen()} game_id={location.pathname.split("/")[2]} /> */}
           </div>
-          {/* <ChessBoard raw={raw} fen={game.fen()} game_id={location.pathname.split("/")[2]} /> */}
         </div>
-      </div>
-    </>
-    //   <div key={i} style={{ height: "150px", width: "150px", cursor: "pointer" }} onClick={() => onHandleJoinGame((e as any).game_id)}>
-    //     <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} />
-    //   </div>
-  );
+      </>
+      //   <div key={i} style={{ height: "150px", width: "150px", cursor: "pointer" }} onClick={() => onHandleJoinGame((e as any).game_id)}>
+      //     <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} />
+      //   </div>
+    );
+  }
 };
 export default Game;
