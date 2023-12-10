@@ -104,7 +104,7 @@ const Game: React.FC<{}> = () => {
       // socket.off("newMove", onNewMove);
     };
   }, []);
-  console.log(3);
+  console.log(3, isSocketConnected);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
