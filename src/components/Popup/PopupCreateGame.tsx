@@ -107,7 +107,7 @@ const PopupCreateGame: React.FC<{}> = () => {
               .post(
                 "/new-game-v2",
                 {
-                  params: { isPaymentMatch: isBettingMatch },
+                  params: { isPaymentMatch: isBettingMatch, gameIndex: (output.toJSON() as any).ok },
                 },
                 { headers: apiHeader },
               )
