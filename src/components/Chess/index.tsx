@@ -418,7 +418,7 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
                   </Popup>
                 </div>
               )}
-              {raw && raw.player_2 === activeAccount?.address && raw.pays.player2 === 0 && (
+              {raw && raw.player_1 !== activeAccount?.address && raw.pays.player2 === 0 && (
                 <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
                   <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
                     <div className="font-bold">Deposit 10 AZ0 to play this match</div>
