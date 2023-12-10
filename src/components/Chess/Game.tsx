@@ -133,6 +133,7 @@ const Game: React.FC<{}> = () => {
   }
 
   function onSquareClick(square: Square) {
+    console.log("7s200:data", activeAccount?.address, player1, turnPlay, player2);
     if ((activeAccount?.address === player1 && turnPlay === "w") || (activeAccount?.address === player2 && turnPlay === "b")) {
       setRightClickedSquares({});
 
@@ -179,9 +180,10 @@ const Game: React.FC<{}> = () => {
           promotion: "q",
         });
 
-        socket.emit(location.pathname.split("/")[2], {
+        socket.emit("move", {
           moveFrom,
           square,
+          game_id: location.pathname.split("/")[2],
           turn: game.turn(),
           address: activeAccount?.address,
           fen: game.fen(),
