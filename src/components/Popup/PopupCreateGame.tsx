@@ -15,7 +15,7 @@ import { usePopups } from "./PopupProvider";
 const PopupCreateGame: React.FC<{}> = () => {
   const { api, activeAccount, activeSigner } = useInkathon();
 
-  const [isBettingMatch, setIsBettingMatch] = useState(false);
+  const [isBettingMatch, setIsBettingMatch] = useState(true);
   const [isLoadingCreateGame, setIsLoadingCreateGame] = useState(false);
   const navigate = useNavigate();
 
@@ -136,21 +136,24 @@ const PopupCreateGame: React.FC<{}> = () => {
       <div className="flex flex-col space-y-4">
         <h1 className="mb-4 text-center font-bold text-[20px]">Create chess match</h1>
         <div className="flex justify-between space-x-2 text-center">
-          <div className="border border-2 border-green-400 bg-green-100 rounded-2xl w-1/2 p-2 cursor-pointer" onClick={() => setIsBettingMatch(false)}>
+          <div className="border border-2 border-green-400 bg-green-100 rounded-2xl w-1/2 p-2 cursor-pointer">
             <div className="text-[20px] font-semibold flex space-x-2 justify-center items-center">
               <input
                 id="link-checkbox"
                 type="checkbox"
-                checked={isBettingMatch === true ? false : true}
-                onClick={() => setIsBettingMatch(false)}
+                // checked={}
+                disabled
+                // onClick={() => setIsBettingMatch(false)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <div>Fee match</div>
+              <div>Free match</div>
             </div>
-            <div className="text-[14px]">User web 2.0 and web 3.0 can be play together</div>
+            <div className="text-[14px]">
+              User web 2.0 and web 3.0 can be play together <p className="font-bold">(Soon)</p>
+            </div>
           </div>
 
-          <div className="border border-2 border-blue-400 bg-blue-100 rounded-2xl w-1/2 p-2 cursor-pointer" onClick={() => setIsBettingMatch(true)}>
+          <div className="border border-2 border-blue-400 bg-blue-100 rounded-2xl w-1/2 p-2 cursor-pointer" onChange={() => setIsBettingMatch(true)}>
             <div className="text-[20px] font-semibold flex space-x-2 justify-center items-center">
               <input
                 id="link-checkbox"
