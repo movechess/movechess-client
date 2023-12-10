@@ -178,7 +178,6 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
         });
         console.log("7s200:move", move);
         console.log("game.fend", game.fen());
-        socket.emit("joinGame", { game_id: game_id });
         socket.emit(game_id, {
           moveFrom,
           square,
