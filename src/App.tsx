@@ -90,7 +90,6 @@ function App() {
   // const onHandleCreateGame = async () => {
   //   socket.emit("createGame");
   // };
-  console.log("7s200:games", games);
 
   const onCreateGame = async () => {
     return addPopup({

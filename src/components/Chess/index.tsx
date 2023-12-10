@@ -42,6 +42,7 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
   const [isHiddenGameStatus, setIsHiddenGameStatus] = useState(false);
 
   const [isDeposit, setIsDeposit] = useState(false);
+  const [turnPlay, setTurnPlay] = useState("w");
 
   const [isClaim, setIsClaim] = useState(false);
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
           setGame(new Chess(res.data.game.fen));
           setPlayer1(res.data.game.player_1);
           setPlayer2(res.data.game.player_2);
+          setTurnPlay(res.data.game.turn_player);
         }
       })
       .catch((err) => {
@@ -87,18 +89,18 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.emit("joinGame", { game_id: game_id });
+    socket.on("newMove", function (room) {
+      if (room.fen) {
+        setGame(new Chess(room.fen));
+        setTurnPlay(room.turn);
+      }
+    });
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
     };
   }, []);
-
-  socket.on("newMove", function (room) {
-    if (room.fen) {
-      setGame(new Chess(room.fen));
-    }
-  });
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
@@ -129,75 +131,77 @@ const ChessBoard: React.FC<{ isItem?: boolean; fen: any; game_id: string; player
   }
 
   function onSquareClick(square: Square) {
-    setRightClickedSquares({});
+    if ((activeAccount?.address === player1 && turnPlay === "w") || (activeAccount?.address === player2 && turnPlay === "b")) {
+      setRightClickedSquares({});
 
-    // from square
+      // from square
 
-    // to square
-    if (!moveTo) {
-      if (!moveFrom) {
-        const hasMoveOptions = getMoveOptions(square);
-        if (hasMoveOptions) setMoveFrom(square);
+      // to square
+      if (!moveTo) {
+        if (!moveFrom) {
+          const hasMoveOptions = getMoveOptions(square);
+          if (hasMoveOptions) setMoveFrom(square);
+          return;
+        }
+        // check if valid move before showing dialog
+        const moves = game.moves({
+          square: moveFrom,
+          verbose: true,
+        });
+        const foundMove = moves.find((m: any) => m.from === moveFrom && m.to === square) as any;
+        // not a valid move
+        if (!foundMove) {
+          // check if clicked on new piece
+          const hasMoveOptions = getMoveOptions(square);
+          // if new piece, setMoveFrom, otherwise clear moveFrom
+          setMoveFrom(hasMoveOptions ? square : "");
+          return;
+        }
+
+        // valid move
+        setMoveTo(square);
+        // console.log("7s200:move", moveFrom, square, game.turn());
+
+        // if promotion move
+        if ((foundMove.color === "w" && foundMove.piece === "p" && square[1] === "8") || (foundMove.color === "b" && foundMove.piece === "p" && square[1] === "1")) {
+          setShowPromotionDialog(true);
+          return;
+        }
+
+        // is normal move
+        let gameCopy = game;
+
+        const move = gameCopy.move({
+          from: moveFrom,
+          to: square,
+          promotion: "q",
+        });
+        console.log("7s200:move", move);
+        console.log("game.fend", game.fen());
+        socket.emit("joinGame", { game_id: game_id });
+        socket.emit(game_id, {
+          moveFrom,
+          square,
+          turn: game.turn(),
+          address: activeAccount?.address,
+          fen: game.fen(),
+          isPromotion: (foundMove.color === "w" && foundMove.piece === "p" && square[1] === "8") || (foundMove.color === "b" && foundMove.piece === "p" && square[1] === "1"),
+        });
+        // if invalid, setMoveFrom and getMoveOptions
+        if (move === null) {
+          const hasMoveOptions = getMoveOptions(square);
+          if (hasMoveOptions) setMoveFrom(square);
+          return;
+        }
+
+        setGame(gameCopy);
+
+        // setTimeout(makeRandomMove, 300);
+        setMoveFrom("");
+        setMoveTo(null);
+        setOptionSquares({});
         return;
       }
-      // check if valid move before showing dialog
-      const moves = game.moves({
-        square: moveFrom,
-        verbose: true,
-      });
-      const foundMove = moves.find((m: any) => m.from === moveFrom && m.to === square) as any;
-      // not a valid move
-      if (!foundMove) {
-        // check if clicked on new piece
-        const hasMoveOptions = getMoveOptions(square);
-        // if new piece, setMoveFrom, otherwise clear moveFrom
-        setMoveFrom(hasMoveOptions ? square : "");
-        return;
-      }
-
-      // valid move
-      setMoveTo(square);
-      // console.log("7s200:move", moveFrom, square, game.turn());
-
-      // if promotion move
-      if ((foundMove.color === "w" && foundMove.piece === "p" && square[1] === "8") || (foundMove.color === "b" && foundMove.piece === "p" && square[1] === "1")) {
-        setShowPromotionDialog(true);
-        return;
-      }
-
-      // is normal move
-      let gameCopy = game;
-
-      const move = gameCopy.move({
-        from: moveFrom,
-        to: square,
-        promotion: "q",
-      });
-      console.log("7s200:move", move);
-      console.log("game.fend", game.fen());
-      socket.emit("joinGame", { game_id: game_id });
-      socket.emit(game_id, {
-        moveFrom,
-        square,
-        turn: game.turn(),
-        address: activeAccount?.address,
-        fen: game.fen(),
-        isPromotion: (foundMove.color === "w" && foundMove.piece === "p" && square[1] === "8") || (foundMove.color === "b" && foundMove.piece === "p" && square[1] === "1"),
-      });
-      // if invalid, setMoveFrom and getMoveOptions
-      if (move === null) {
-        const hasMoveOptions = getMoveOptions(square);
-        if (hasMoveOptions) setMoveFrom(square);
-        return;
-      }
-
-      setGame(gameCopy);
-
-      // setTimeout(makeRandomMove, 300);
-      setMoveFrom("");
-      setMoveTo(null);
-      setOptionSquares({});
-      return;
     }
   }
 

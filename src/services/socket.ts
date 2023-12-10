@@ -5,3 +5,8 @@ export const socket = io("https://engine.movechess.com", {
     Authorization: token !== null ? token : "",
   },
 });
+// export const socket = io("http://localhost:3001", {
+//   extraHeaders: {
+//     Authorization: token !== null ? token : "",
+//   },
+// });

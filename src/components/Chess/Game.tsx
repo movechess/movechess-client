@@ -54,7 +54,6 @@ const Game: React.FC<{}> = () => {
             }
             //deposit
           }
-
           setGame(new Chess(res.data.game.fen));
         }
       })
@@ -94,16 +93,12 @@ const Game: React.FC<{}> = () => {
     fetchGame();
   }, [contract]);
 
+  console.log("7s200:vien", game);
+
   return (
     <>
       <Header />
       <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">
-        {/* <div>
-          <>{game.isGameOver() && <div>Game over</div>}</>
-          <>{game.isDraw() && <div>Game draw</div>}</>
-          <>{game.moves().length === 0 && <div>posible move ===0</div>}</>
-        </div> */}
-
         <div className="relative" style={{ height: "500px", width: "500px", cursor: "pointer" }}>
           <ChessBoard raw={raw} fen={game.fen()} game_id={location.pathname.split("/")[2]} />
         </div>
