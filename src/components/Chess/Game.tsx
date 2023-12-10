@@ -93,7 +93,7 @@ const Game: React.FC<{}> = () => {
       }
     }
 
-    socket.on("connect", onConnect);
+    socket.on("connection", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("newMove", onNewMove);
     socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
@@ -104,7 +104,7 @@ const Game: React.FC<{}> = () => {
       // socket.off("newMove", onNewMove);
     };
   }, []);
-  console.log(3, isSocketConnected);
+  console.log(4, isSocketConnected);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
