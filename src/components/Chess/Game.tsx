@@ -135,7 +135,6 @@ const Game: React.FC<{}> = () => {
   }
 
   function onSquareClick(square: Square) {
-    console.log("7s200:data", activeAccount?.address, player1, turnPlay, player2);
     if ((activeAccount?.address === player1 && turnPlay === "w") || (activeAccount?.address === player2 && turnPlay === "b")) {
       setRightClickedSquares({});
 
