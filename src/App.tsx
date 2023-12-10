@@ -1,7 +1,7 @@
 import { useInkathon } from "@scio-labs/use-inkathon";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ChessBoard from "./components/Chess";
+import GameItem from "./components/Chess/GameItem";
 import Header from "./components/Header/Header";
 import PopupCreateGame from "./components/Popup/PopupCreateGame";
 import { usePopups } from "./components/Popup/PopupProvider";
@@ -71,7 +71,8 @@ function App() {
               style={{ height: "250px", width: "250px", cursor: "pointer", padding: "10px" }}
               onClick={() => onHandleJoinGame((e as any).game_id)}
             >
-              <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} />
+              <GameItem fen={(e as any).fen} />
+              {/* <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} /> */}
             </div>
             {(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Match 10 AZ0</div>}
             {!(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Free match</div>}
