@@ -97,7 +97,7 @@ const Game: React.FC<{}> = () => {
   });
   function onNewMove(room: any) {
     console.log("new move", room);
-    if (room.fen) {
+    if (room.fen && room.game_id === location.pathname.split("/")[2]) {
       setGame(new Chess(room.fen));
       setTurnPlay(room.turn);
     }
