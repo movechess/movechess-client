@@ -77,24 +77,32 @@ const Game: React.FC<{}> = () => {
     function onDisconnect() {
       setIsSocketConnected(false);
     }
-    function onNewMove(room: any) {
-      console.log("new move", room);
-      if (room.fen) {
-        setGame(new Chess(room.fen));
-        setTurnPlay(room.turn);
-      }
-    }
+    // function onNewMove(room: any) {
+    //   console.log("new move", room);
+    //   if (room.fen) {
+    //     setGame(new Chess(room.fen));
+    //     setTurnPlay(room.turn);
+    //   }
+    // }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
-    socket.on("newMove", onNewMove);
+    // socket.on("newMove", onNewMove);
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("newMove", onNewMove);
+      // socket.off("newMove", onNewMove);
     };
-  }, [raw, game]);
+  });
+  function onNewMove(room: any) {
+    console.log("new move", room);
+    if (room.fen) {
+      setGame(new Chess(room.fen));
+      setTurnPlay(room.turn);
+    }
+  }
+  socket.on("newMove", onNewMove);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
@@ -171,7 +179,7 @@ const Game: React.FC<{}> = () => {
           promotion: "q",
         });
 
-        socket.emit(raw.game_id, {
+        socket.emit(location.pathname.split("/")[2], {
           moveFrom,
           square,
           turn: game.turn(),
@@ -276,7 +284,7 @@ const Game: React.FC<{}> = () => {
             console.log("e", e);
           });
         if (signtx) {
-          navigate(`/game/${raw.game_id}`);
+          navigate(`/game/${location.pathname.split("/")[2]}`);
         }
 
         setIsDeposit(false);
@@ -295,7 +303,7 @@ const Game: React.FC<{}> = () => {
       .post(
         "/update-winner-v2",
         {
-          params: { game_id: raw.game_id },
+          params: { game_id: location.pathname.split("/")[2] },
         },
         { headers: apiHeader },
       )
@@ -305,11 +313,10 @@ const Game: React.FC<{}> = () => {
         return data;
       });
     if (res) {
-      navigate(`/game/${raw.game_id}`);
+      navigate(`/game/${location.pathname.split("/")[2]}`);
       setIsClaim(false);
     }
   };
-  console.log("7s200:fem", game.fen());
 
   const onShowFen = () => {
     return game.fen();
