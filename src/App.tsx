@@ -5,6 +5,7 @@ import GameItem from "./components/Chess/GameItem";
 import Header from "./components/Header/Header";
 import PopupCreateGame from "./components/Popup/PopupCreateGame";
 import { usePopups } from "./components/Popup/PopupProvider";
+import { truncateSuiTx } from "./services/address";
 import { socket } from "./services/socket";
 import api, { apiHeader } from "./utils/api";
 
@@ -65,6 +66,8 @@ function App() {
       temp = games.map((e, i) => {
         return (
           <div key={i} className="cursor-pointer">
+            {(e as any).game_id && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">ID: {truncateSuiTx((e as any).game_id)}</div>}
+
             <div
               className="mx-auto bg-red-100"
               key={i}
@@ -74,7 +77,9 @@ function App() {
               <GameItem fen={(e as any).fen} />
               {/* <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} /> */}
             </div>
-            {(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Match 10 AZ0</div>}
+            <div className="flex justify-between max-w-[250px] mx-auto">
+              {(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Match 10 AZ0</div>}
+            </div>
             {!(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Free match</div>}
           </div>
         );
@@ -129,7 +134,7 @@ function App() {
               Play Online
             </div>
             <div className="min-w-[250px] text-center text-white px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 text-[32px] font-bold w-fit border border-none rounded-xl cursor-pointer">
-              Mathching
+              Matching
             </div>
           </div>
         </div>
