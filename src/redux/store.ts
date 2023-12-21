@@ -1,12 +1,14 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import accountReducer from "./account/account.reducer";
+import gameReducer from "./game/game.reducer";
 // import toastReducer from "./reducers/toastReducer";
 
 const createStore = () => {
   return configureStore({
     reducer: {
       account: accountReducer,
+      game: gameReducer,
     },
   });
 };

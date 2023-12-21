@@ -20,7 +20,6 @@ function App() {
     return flag;
   }
 
-  const [board, setBoard] = useState();
   const [games, setGames] = useState([]);
 
   useEffect(() => {
@@ -56,7 +55,7 @@ function App() {
       socket.off("disconnect", onDisconnect);
     };
   }, []);
-  if (!board && !games) {
+  if (!games) {
     return <>Loading...</>;
   }
 
@@ -75,7 +74,6 @@ function App() {
               onClick={() => onHandleJoinGame((e as any).game_id)}
             >
               <GameItem fen={(e as any).fen} />
-              {/* <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} /> */}
             </div>
             <div className="flex justify-between max-w-[250px] mx-auto">
               {(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Match 10 AZ0</div>}
@@ -92,10 +90,6 @@ function App() {
     socket.emit("joinGame", { game_id: game_id });
     navigate(`/game/${game_id}`);
   };
-
-  // const onHandleCreateGame = async () => {
-  //   socket.emit("createGame");
-  // };
 
   const onCreateGame = async () => {
     return addPopup({
@@ -138,7 +132,7 @@ function App() {
             </div>
           </div>
         </div>
-        <div>
+        <div className="py-8">
           <div className="text-[32px] font-bold text-center">Lobby</div>
           <div>
             {hasJWT() ? (

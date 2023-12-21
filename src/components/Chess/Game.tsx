@@ -8,17 +8,25 @@ import { useEffect, useState } from "react";
 import { Chessboard as Board } from "react-chessboard";
 import { useLocation, useNavigate } from "react-router-dom";
 import abi from "../../abi/movechesscontract.json";
+import { getGame, selectGame } from "../../redux/game/game.reducer";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { truncateSuiTx } from "../../services/address";
 import { socket } from "../../services/socket";
+import { DEFAULT_0X0_ADDRESS } from "../../utils/address";
 import { apiHeader, default as restApi } from "../../utils/api";
 import { getGasLimit } from "../../utils/gas";
 import Button from "../Button/Button";
 import Header from "../Header/Header";
+import LoadingGame from "../Loading/LoadingGame";
 import Popup from "../Popup/Popup";
 
 const Game: React.FC<{}> = () => {
   // const { contract, address: contractAddress } = useRegisteredContract("5CRDBTruY3hLTCQmn7MTnULpL3ALXLMEUWLDa826hyFftKkK");
   const { connect, error, isConnected, activeChain, activeAccount, disconnect, activeSigner } = useInkathon();
+  const dispatch = useAppDispatch();
+  const gameRx = useAppSelector(selectGame);
+
+  const [isStartGame, setIsStartGame] = useState(false);
 
   const [game, setGame] = useState<Chess | any>();
   const [raw, setRaw] = useState<any>(null);
@@ -61,6 +69,9 @@ const Game: React.FC<{}> = () => {
           setPlayer1(data.player_1);
           setPlayer2(data.player_2);
           setTurnPlay(data.turn_player);
+          if (data.player_1.length > 0 && data.player_2.length > 0) {
+            setIsStartGame(true);
+          }
         }
       })
       .catch((err) => {
@@ -69,8 +80,13 @@ const Game: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
+    if (activeAccount && activeSigner && raw) {
+      dispatch(getGame({ index: raw.pays.gameIndex, activeAccount, activeSigner }));
+    }
+  }, [dispatch, activeAccount, activeSigner]);
+
+  useEffect(() => {
     function onConnect() {
-      console.log(1);
       setIsSocketConnected(true);
     }
 
@@ -81,26 +97,28 @@ const Game: React.FC<{}> = () => {
         setTurnPlay(room.turn);
       }
     }
+    function onStart(data: any) {
+      console.log("7s200:socket:start", data);
+      if (data.start === true) {
+        setIsStartGame(data.start);
+      }
+    }
     socket.connect();
 
     socket.on("connection", onConnect);
 
     socket.on("newmove", onNewMove);
+
+    socket.on("start", onStart);
+
+    socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
+
     return () => {
       socket.off("connection", onConnect);
       socket.off("newmove", onNewMove);
+      socket.off("start", onStart);
     };
   }, []);
-
-  // function onNewMove(room: any) {
-  //   console.log("new move", room);
-  //   if (room.fen) {
-  //     setGame(new Chess(room.fen));
-  //     setTurnPlay(room.turn);
-  //   }
-  // }
-
-  // socket.on("newmove", onNewMove);
 
   function getMoveOptions(square: Square) {
     const moves = game.moves({
@@ -284,6 +302,7 @@ const Game: React.FC<{}> = () => {
             console.log("e", e);
           });
         if (signtx) {
+          socket.emit("joinGame", { game_id: location.pathname.split("/")[2] });
           navigate(`/game/${location.pathname.split("/")[2]}`);
         }
 
@@ -321,105 +340,199 @@ const Game: React.FC<{}> = () => {
   const onShowFen = () => {
     return game.fen();
   };
-  if (!game || !raw) {
+
+  const onShowPlayerTop = () => {
+    if (!gameRx.game || !gameRx.game.userA || !gameRx.game.userB) {
+      return;
+    }
+    if (activeAccount?.address !== gameRx.game.userA && activeAccount?.address !== gameRx.game.userB) {
+      return (
+        <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+          <div className="flex justify-center items-center space-x-2">
+            <ChessBishop color="white" size={26} />
+            <p className="font-bold text-[14px]">{gameRx.game.userB === DEFAULT_0X0_ADDRESS ? "Waiting player..." : truncateSuiTx(gameRx.game.userB)}</p>
+          </div>
+        </div>
+      );
+    } else {
+      if (activeAccount?.address === player2) {
+        return (
+          <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+            <div className="flex justify-center items-center space-x-2">
+              <ChessBishop color="white" size={26} />
+              <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+            <div className="flex justify-center items-center space-x-2">
+              <ChessBishop color="white" size={26} />
+              <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+            </div>
+          </div>
+        );
+      }
+    }
+  };
+
+  const onShowPlayerBottom = () => {
+    if (!gameRx.game || !gameRx.game.userA || !gameRx.game.userB) {
+      return;
+    }
+    if (activeAccount?.address !== gameRx.game.userA && activeAccount?.address !== gameRx.game.userB) {
+      return (
+        <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+          <div className="flex justify-center items-center space-x-2">
+            <ChessBishop color="white" size={26} />
+            <p className="font-bold text-[14px]">{truncateSuiTx(gameRx.game.userA)}</p>
+          </div>
+        </div>
+      );
+    } else {
+      if (activeAccount?.address === player1) {
+        return (
+          <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+            <div className="flex justify-center items-center space-x-2">
+              <ChessBishop color="white" size={26} />
+              <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="px-4 py-2 bg-[#baca44] w-2/3 border border-none rounded-xl shadow-xl">
+            <div className="flex justify-center items-center space-x-2">
+              <ChessBishop color="white" size={26} />
+              <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
+            </div>
+          </div>
+        );
+      }
+    }
+  };
+
+  const onShowDepositPopup = () => {
+    if (!gameRx.game || !gameRx.game.userA || !gameRx.game.userB) {
+      return;
+    }
+    if ((activeAccount?.address !== gameRx.game.userA && !gameRx.game.userAPayable) || (activeAccount?.address !== gameRx.game.userB && !gameRx.game.userBPayable)) {
+      if (activeAccount?.address === gameRx.game.userA && gameRx.game.userAPayable) {
+        return;
+      }
+      if (activeAccount?.address === gameRx.game.userB && gameRx.game.userBPayable) {
+        return;
+      }
+      return (
+        <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
+          <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
+            <div className="font-bold">Deposit 10 AZ0 to play this match</div>
+            <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => Deposit()} loading={isDeposit}>
+              Deposit
+            </Button>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const onShowWaitingStartGame = () => {
+    if (!isStartGame) {
+      return (
+        <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
+          <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
+            <div className="font-bold">Waiting player join the game...</div>
+          </div>
+        </div>
+      );
+    }
     return <></>;
+  };
+
+  const isOrientation = () => {
+    if (!gameRx.game || !gameRx.game.userA || !gameRx.game.userB || !player1) {
+      return;
+    }
+    if (activeAccount?.address === player1 && player1 === gameRx.game.userA) {
+      return "white";
+    } else {
+      return "black";
+    }
+  };
+
+  const onShowGame = () => {
+    console.log("7s200:raw", raw, gameRx);
+    if (gameRx.game === null) {
+      return <LoadingGame />;
+    } else {
+      return (
+        <div className="relative" style={{ height: "500px", width: "500px", cursor: "pointer" }}>
+          <div className="flex flex-col space-y-4">
+            {onShowPlayerTop()}
+            <div className="relative">
+              <Board
+                boardOrientation={isOrientation()}
+                position={game.fen()}
+                id="ClickToMove"
+                animationDuration={200}
+                arePiecesDraggable={false}
+                onSquareClick={onSquareClick}
+                onSquareRightClick={onSquareRightClick}
+                onPromotionPieceSelect={onPromotionPieceSelect}
+                customBoardStyle={{
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+                }}
+                customSquareStyles={{
+                  ...moveSquares,
+                  ...optionSquares,
+                  ...rightClickedSquares,
+                }}
+                promotionToSquare={moveTo}
+                showPromotionDialog={showPromotionDialog}
+              />
+              {(game.isGameOver() || game.isDraw()) && (
+                <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
+                  <Popup className="bg-gray-50 w-[400px]">
+                    <h1 className="mb-4 text-center font-bold text-[20px]">
+                      {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
+                      {game.isDraw() && <div>Draw</div>}
+                      {(raw as any).isPaymentMatch &&
+                        game.isGameOver() &&
+                        (((raw as any).turn_player === "b" && activeAccount?.address! === raw.player_1) ||
+                          ((raw as any).turn_player === "w" && activeAccount?.address! === raw.player_2)) && (
+                          <Button
+                            className="mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]"
+                            onClick={() => onClaim()}
+                            disabled={raw.isClaimed}
+                            loading={isClaim}
+                          >
+                            {raw.isClaimed ? "Claimed" : "Claim"}
+                          </Button>
+                        )}
+                    </h1>
+                  </Popup>
+                </div>
+              )}
+              {onShowWaitingStartGame()}
+              {onShowDepositPopup()}
+            </div>
+            {onShowPlayerBottom()}
+          </div>
+        </div>
+      );
+    }
+  };
+
+  if (!game || !raw) {
+    return <LoadingGame />;
   } else {
     return (
       <>
         <Header />
-        <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">
-          <div className="relative" style={{ height: "500px", width: "500px", cursor: "pointer" }}>
-            <div className="flex flex-col space-y-4">
-              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-                {activeAccount?.address === player2 ? (
-                  <div className="flex justify-center items-center space-x-2">
-                    <ChessBishop color="white" size={26} />
-                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                  </div>
-                ) : (
-                  <div className="flex justify-center items-center space-x-2">
-                    <ChessBishop color="black" size={26} />
-                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
-                  </div>
-                )}
-              </div>
-              <div className="relative">
-                <Board
-                  boardOrientation={activeAccount?.address === player1 ? "white" : "black"}
-                  position={game.fen()}
-                  id="ClickToMove"
-                  animationDuration={200}
-                  arePiecesDraggable={false}
-                  onSquareClick={onSquareClick}
-                  onSquareRightClick={onSquareRightClick}
-                  onPromotionPieceSelect={onPromotionPieceSelect}
-                  customBoardStyle={{
-                    borderRadius: "4px",
-                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-                  }}
-                  customSquareStyles={{
-                    ...moveSquares,
-                    ...optionSquares,
-                    ...rightClickedSquares,
-                  }}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={showPromotionDialog}
-                />
-                {(game.isGameOver() || game.isDraw()) && (
-                  <div className={`absolute top-1/3 left-[50px] w-[400px] ${isHiddenGameStatus && "hidden"}`} onClick={() => setIsHiddenGameStatus(true)}>
-                    <Popup className="bg-gray-50 w-[400px]">
-                      <h1 className="mb-4 text-center font-bold text-[20px]">
-                        {game.isGameOver() && <div>{game.turn() === "b" ? truncateSuiTx(player1) : truncateSuiTx(player2)}</div>}
-                        {game.isDraw() && <div>Draw</div>}
-                        {(raw as any).isPaymentMatch &&
-                          game.isGameOver() &&
-                          (((raw as any).turn_player === "w" && activeAccount?.address! === raw.player_1) ||
-                            ((raw as any).turn_player === "b" && activeAccount?.address! === raw.player_2)) && (
-                            <Button
-                              className="mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]"
-                              onClick={() => onClaim()}
-                              disabled={raw.isClaimed}
-                              loading={isClaim}
-                            >
-                              {raw.isClaimed ? "Claimed" : "Claim"}
-                            </Button>
-                          )}
-                      </h1>
-                    </Popup>
-                  </div>
-                )}
-                {raw && raw.isPaymentMatch && raw.player_1 !== activeAccount?.address && raw.pays.player2 === 0 && (
-                  <div className="absolute top-1/3 left-[50px] w-[400px] bg-white border boder-none rounded-xl">
-                    <div className="flex flex-col space-y-4 justify-center items-center h-[150px]">
-                      <div className="font-bold">Deposit 10 AZ0 to play this match</div>
-                      <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px]" onClick={() => Deposit()} loading={isDeposit}>
-                        Deposit
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="px-4 py-2 bg-[#baca44] w-1/3 border border-none rounded-xl shadow-xl">
-                {activeAccount?.address === player1 ? (
-                  <div className="flex justify-center items-center space-x-2">
-                    <ChessBishop color="white" size={26} />
-                    <p className="font-bold text-[14px]">{truncateSuiTx(player1)}</p>
-                  </div>
-                ) : (
-                  <div className="flex justify-center items-center space-x-2">
-                    <ChessBishop color="black" size={26} />
-                    <p className="font-bold text-[14px]">{truncateSuiTx(player2)}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* <ChessBoard raw={raw} fen={game.fen()} game_id={location.pathname.split("/")[2]} /> */}
-          </div>
-        </div>
+        <div className="flex p-8 md:ml-64 mt-14 bg-gray-100 h-screen">{onShowGame()}</div>
       </>
-      //   <div key={i} style={{ height: "150px", width: "150px", cursor: "pointer" }} onClick={() => onHandleJoinGame((e as any).game_id)}>
-      //     <ChessBoard isItem fen={(e as any).fen} game_id={(e as any).game_id} />
-      //   </div>
     );
   }
 };
