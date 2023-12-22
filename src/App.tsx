@@ -78,9 +78,7 @@ function App() {
               <GameItem fen={(e as any).fen} />
             </div>
             <div className="flex justify-between max-w-[250px] mx-auto">
-              {(e as any).isPaymentMatch && (
-                <div className="absolute z-50 top-[40px]  bg-green-500 text-center font-bold w-[150px] mx-auto border border-none rounded-xl text-white">Stake: 10 $AZERO</div>
-              )}
+              {(e as any).isPaymentMatch && <div className=" bg-green-500 text-center font-bold w-[150px] mx-auto border border-none rounded-xl text-white">Stake: 10 $AZERO</div>}
             </div>
             {!(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Free match</div>}
           </div>
