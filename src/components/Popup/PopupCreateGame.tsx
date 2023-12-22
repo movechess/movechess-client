@@ -134,7 +134,7 @@ const PopupCreateGame: React.FC<{}> = () => {
   return (
     <Popup className="bg-gray-50 min-w-[500px] max-w-[600px]">
       <div className="flex flex-col space-y-4">
-        <h1 className="mb-4 text-center font-bold text-[20px]">Create chess match</h1>
+        <h1 className="mb-4 text-center font-bold text-[20px]">Start Chess Match</h1>
         <div className="flex justify-between space-x-2 text-center">
           <div className="border border-2 border-green-400 bg-green-100 rounded-2xl w-1/2 p-2 cursor-pointer">
             <div className="text-[20px] font-semibold flex space-x-2 justify-center items-center">
@@ -146,10 +146,11 @@ const PopupCreateGame: React.FC<{}> = () => {
                 // onClick={() => setIsBettingMatch(false)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <div>Free match</div>
+              <div>Free Match</div>
             </div>
             <div className="text-[14px]">
-              User web 2.0 and web 3.0 can be play together <p className="font-bold">(Soon)</p>
+              Available for Web2 and Web3 can be played together
+              <p className="font-bold">(Soon)</p>
             </div>
           </div>
 
@@ -162,9 +163,9 @@ const PopupCreateGame: React.FC<{}> = () => {
                 onClick={() => setIsBettingMatch(true)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <div>Betting match</div>
+              <div>Betting Match</div>
             </div>
-            <div className="text-[14px]">User web 3.0 can be play together with betting 10 AZ0</div>
+            <div className="text-[14px]">Stake your $AZERO to play and earn from winning</div>
           </div>
         </div>
         <div className="mx-auto">
@@ -174,7 +175,7 @@ const PopupCreateGame: React.FC<{}> = () => {
             loading={isLoadingCreateGame}
             onClick={onHandleCreateMatch}
           >
-            Create match
+            Create Game
           </Button>
         </div>
       </div>

@@ -64,8 +64,10 @@ function App() {
     if (games.length > 0) {
       temp = games.map((e, i) => {
         return (
-          <div key={i} className="cursor-pointer">
-            {(e as any).game_id && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">ID: {truncateSuiTx((e as any).game_id)}</div>}
+          <div key={i} className="cursor-pointer relative">
+            {(e as any).game_id && (
+              <div className=" top-4	 bg-blue-400 text-center font-bold w-[200px] mx-auto border border-none rounded-xl">Match ID: {truncateSuiTx((e as any).game_id)}</div>
+            )}
 
             <div
               className="mx-auto bg-red-100"
@@ -76,7 +78,9 @@ function App() {
               <GameItem fen={(e as any).fen} />
             </div>
             <div className="flex justify-between max-w-[250px] mx-auto">
-              {(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Match 10 AZ0</div>}
+              {(e as any).isPaymentMatch && (
+                <div className="absolute z-50 top-[40px]  bg-green-500 text-center font-bold w-[150px] mx-auto border border-none rounded-xl text-white">Stake: 10 $AZERO</div>
+              )}
             </div>
             {!(e as any).isPaymentMatch && <div className="bg-blue-400 text-center font-bold w-[150px] mx-auto border border-none rounded-xl">Free match</div>}
           </div>
@@ -133,10 +137,10 @@ function App() {
           </div>
         </div>
         <div className="py-8">
-          <div className="text-[32px] font-bold text-center">Lobby</div>
+          <div className="text-[32px] font-bold text-center">Lobbies</div>
           <div>
             {hasJWT() ? (
-              <div className="w-full grid grid-cols-3 gap-4">{onShowGames()}</div>
+              <div className="w-full grid grid-cols-4 gap-8">{onShowGames()}</div>
             ) : (
               <div>
                 <div className="text-center font-bold">Login to play</div>
