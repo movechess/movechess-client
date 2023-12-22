@@ -77,13 +77,13 @@ const Game: React.FC<{}> = () => {
       .catch((err) => {
         // localStorage.removeItem("token");
       });
-  }, []);
+  }, [isStartGame]);
 
   useEffect(() => {
     if (activeAccount && activeSigner && raw) {
       dispatch(getGame({ index: raw.pays.gameIndex, activeAccount, activeSigner }));
     }
-  }, [dispatch, activeAccount, activeSigner]);
+  }, [dispatch, activeAccount, activeSigner, isStartGame]);
 
   useEffect(() => {
     function onConnect() {
