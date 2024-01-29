@@ -115,7 +115,7 @@ const Header: React.FC<{}> = () => {
                 onClick={() => {
                   navigate("/tournament");
                 }}
-                className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/" && "bg-gray-100"}`}
+                className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/tournament" && "bg-gray-100"}`}
               >
                 <svg
                   className="w-[24px] h-[24px] text-gray-500 transition duration-75"
@@ -124,26 +124,25 @@ const Header: React.FC<{}> = () => {
                   fill="currentColor"
                   viewBox="0 0 22 21"
                 >
-                  <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
-                  <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
+                  <path d="M22,3a1,1,0,0,0,0-2H20a1,1,0,0,0-1,1V4H17a1,1,0,0,0-1,1v6H14.816a2.982,2.982,0,0,0-5.632,0H8V5A1,1,0,0,0,7,4H5V2A1,1,0,0,0,4,1H2A1,1,0,0,0,2,3H3V7H2A1,1,0,0,0,2,9H4A1,1,0,0,0,5,8V6H6V18H5V16a1,1,0,0,0-1-1H2a1,1,0,0,0,0,2H3v4H2a1,1,0,0,0,0,2H4a1,1,0,0,0,1-1V20H7a1,1,0,0,0,1-1V13H9.184a2.982,2.982,0,0,0,5.632,0H16v6a1,1,0,0,0,1,1h2v2a1,1,0,0,0,1,1h2a1,1,0,0,0,0-2H21V17h1a1,1,0,0,0,0-2H20a1,1,0,0,0-1,1v2H18V6h1V8a1,1,0,0,0,1,1h2a1,1,0,0,0,0-2H21V3ZM12,13a1,1,0,1,1,1-1A1,1,0,0,1,12,13Z" />
                 </svg>
                 <span className="ml-3">Tournament</span>
               </div>
             </li>
             <li>
-              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/" && "bg-gray-100"}`}>
+              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/x" && "bg-gray-100"}`}>
                 <Shop size={24} />
                 <span className="ml-3">Chess market</span>
               </div>
             </li>
             <li>
-              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/" && "bg-gray-100"}`}>
+              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/x" && "bg-gray-100"}`}>
                 <LearningApp size={24} />
                 <span className="ml-3">Learn</span>
               </div>
             </li>
             <li>
-              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/" && "bg-gray-100"}`}>
+              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/x" && "bg-gray-100"}`}>
                 <svg
                   className="w-[24px] h-[24px] text-gray-500 transition duration-75"
                   aria-hidden="true"
@@ -158,7 +157,7 @@ const Header: React.FC<{}> = () => {
               </div>
             </li>
             <li>
-              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/" && "bg-gray-100"}`}>
+              <div onClick={() => {}} className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group ${data.pathname === "/x" && "bg-gray-100"}`}>
                 <Newspaper size={24} />
                 <span className="ml-3">News</span>
               </div>
