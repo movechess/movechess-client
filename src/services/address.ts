@@ -33,10 +33,10 @@ export const txTruncateEthAddress = (address: string) => {
   return `${match[1]}...${match[2]}`;
 };
 
-export const truncateSuiTx = (txn: string) => {
+export const truncateSuiTx = (txn: string, isShowRawText?: boolean) => {
   const match = txn.match(truncateSuiRegex);
 
-  if (!match) return match;
+  if (!match) return isShowRawText ? txn : match;
   return `${match[1]}...${match[2]}`;
 };
 

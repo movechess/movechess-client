@@ -8,6 +8,7 @@ import Game from "./components/Chess/Game";
 import PopupProvider from "./components/Popup/PopupProvider";
 import { store } from "./redux/store";
 import "./styles/main.scss";
+import Tournament from "./components/Tournament/Tournament";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
         element: <App />,
       },
       { path: "/game/:id", element: <Game /> },
+      { path: "/tournament", element: <Tournament /> },
     ],
   },
 ]);
