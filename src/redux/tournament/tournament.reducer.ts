@@ -3,6 +3,7 @@ import { ContractPromise } from "@polkadot/api-contract";
 import { createAsyncThunk, createReducer } from "@reduxjs/toolkit";
 import tournament_abi from "../../abi/tournamentcontract.json";
 import { AZ_WSS_URL, TOURNAMENT_CONTRACT_ADDRESS } from "../../utils/data";
+import { getGasLimit } from "../../utils/gas";
 import { RootState } from "../store";
 
 export const getTournaments = createAsyncThunk("tournament/get", async ({}: {}, { getState, dispatch }) => {
@@ -33,7 +34,42 @@ export const getTournaments = createAsyncThunk("tournament/get", async ({}: {}, 
 });
 
 // [TO-DO]
-export const createTournament = createAsyncThunk("tournament/create", async ({}: {}, {}) => {});
+export const createTournament = createAsyncThunk(
+  "tournament/create",
+  async ({ activeSigner, activeAccount, reward, totalPlayer }: { activeSigner: any; activeAccount: any; reward: number; totalPlayer: number }, {}) => {
+    try {
+      if (!activeSigner) return;
+
+      const wsProvider = new WsProvider(AZ_WSS_URL);
+      const api = await ApiPromise.create({ provider: wsProvider });
+      let contract = new ContractPromise(api, tournament_abi, TOURNAMENT_CONTRACT_ADDRESS);
+
+      // @ts-ignore
+      const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "createTournament", contract, { value: 10000000000000 }, [totalPlayer]);
+      const { value: gasLimit } = gasLimitResult as any;
+      await api.setSigner(activeSigner!);
+
+      const txn = await contract.tx.createTournament({ value: reward, gasLimit: gasLimit, storageDepositLimit: null }, totalPlayer);
+      console.log("7s200:createTournament:tx", txn);
+      const signtx = await txn
+        .signAndSend(activeAccount.address, (result: any) => {
+          if (result.status.isInBlock) {
+            console.log("in a block");
+          } else if (result.status.isFinalized) {
+            console.log("finalized");
+          }
+        })
+        .catch((e) => {
+          console.log("7s200:createTournament:err", e);
+        });
+      console.log("7s200:createTournament", signtx);
+    } catch (error) {
+      console.log("7s200:createTournament:err", error);
+      return;
+    }
+  },
+);
+
 export const updateTournamentStatus = createAsyncThunk("tournament/update", async ({}: {}, {}) => {});
 export const registerTournament = createAsyncThunk("tournament/register", async ({}: {}, {}) => {});
 export const claimReward = createAsyncThunk("tournament/claim", async ({}: {}, {}) => {});
