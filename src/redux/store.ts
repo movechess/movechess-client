@@ -2,6 +2,7 @@ import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import accountReducer from "./account/account.reducer";
 import gameReducer from "./game/game.reducer";
+import tournamentReducer from "./tournament/tournament.reducer";
 // import toastReducer from "./reducers/toastReducer";
 
 const createStore = () => {
@@ -9,6 +10,7 @@ const createStore = () => {
     reducer: {
       account: accountReducer,
       game: gameReducer,
+      tournament: tournamentReducer,
     },
   });
 };
