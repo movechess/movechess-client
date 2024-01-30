@@ -19,8 +19,8 @@ interface Standings {
   rank: string;
   address: string;
   totalWin: number;
-  totalLoose: number;
-  score: number;
+  totalLose: number;
+  pts: number;
 }
 
 interface Tournament {
@@ -43,7 +43,7 @@ const mockTournament: Tournament[] = [
     totalPlayer: "8",
     prize: "$1000",
     totalView: "1042",
-    date: "Feb 01 2024",
+    date: "Jan 31 2024",
     volume: "$1,050.32",
     rounds: [
       {
@@ -95,59 +95,59 @@ const mockTournament: Tournament[] = [
     standings: [
       {
         rank: "1",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyLsa2",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyfsa2",
         totalWin: 2,
-        totalLoose: 0,
-        score: 2
+        totalLose: 0,
+        pts: 1
       },
       {
         rank: "2",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyeMt5",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZymfSA",
         totalWin: 2,
-        totalLoose: 0,
-        score: 2
+        totalLose: 1,
+        pts: 1
       },
       {
         rank: "3",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZycFiX",
-        totalWin: 1,
-        totalLoose: 1,
-        score: 1
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZRsm2",
+        totalWin: 2,
+        totalLose: 1,
+        pts: 1
       },
       {
         rank: "4",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZ9eMt5",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyPo9N",
         totalWin: 1,
-        totalLoose: 1,
-        score: 1
+        totalLose: 2,
+        pts: 0
       },
       {
         rank: "5",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyP7Sp",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZy6L2Sm",
         totalWin: 1,
-        totalLoose: 1,
-        score: 1
+        totalLose: 2,
+        pts: 0
       },
       {
         rank: "6",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyy5P7",
-        totalWin: 1,
-        totalLoose: 1,
-        score: 1
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZy2mKl",
+        totalWin: 0,
+        totalLose: 0,
+        pts: 0
       },
       {
         rank: "7",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZN7fHLX",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZy47Hs",
         totalWin: 0,
-        totalLoose: 2,
-        score: 0
+        totalLose: 0,
+        pts: 0
       },
       {
         rank: "8",
-        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZLXWcF",
+        address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZykfSa",
         totalWin: 0,
-        totalLoose: 2,
-        score: 0
+        totalLose: 2,
+        pts: 0
       }
     ],
   },
@@ -165,14 +165,14 @@ const mockTournament: Tournament[] = [
         matches: [
           {
             matchNumber: 1,
-            playerOne: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZyfsa2", score: 0 },
-            playerTwo: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZymfSA", score: 0 },
+            playerOne: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZns9eM", score: 0 },
+            playerTwo: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZMt5P7S", score: 0 },
             winner: 0,
           },
           {
             matchNumber: 2,
-            playerOne: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZRsm2", score: 0 },
-            playerTwo: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZRf12", score: 0 },
+            playerOne: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZ2EkS", score: 0 },
+            playerTwo: { address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumt5P7Spe", score: 0 },
             winner: 0,
           },
         ],
@@ -187,29 +187,29 @@ const mockTournament: Tournament[] = [
         rank: "1",
         address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZns9eM",
         totalWin: 0,
-        totalLoose: 0,
-        score: 0
+        totalLose: 0,
+        pts: 0
       },
       {
         rank: "2",
         address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZMt5P7S",
         totalWin: 0,
-        totalLoose: 0,
-        score: 0
+        totalLose: 0,
+        pts: 0
       },
       {
         rank: "3",
         address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumZ2EkS",
         totalWin: 0,
-        totalLoose: 0,
-        score: 0
+        totalLose: 0,
+        pts: 0
       },
       {
         rank: "4",
         address: "5HrN7fHLXWcFiXPwwtq2EkSGns9eMt5P7SpeTPewumt5P7Spe",
         totalWin: 0,
-        totalLoose: 0,
-        score: 0
+        totalLose: 0,
+        pts: 0
       },
     ],
   },
@@ -306,13 +306,23 @@ function Tournament() {
                         <div className="w-full bg-[#272a33]">
                           <div className="bg-[#22222a] p-5 rounded-[25px] mt-5 text-sm leading-7 text-[#8B8D91] flex gap-x-52">
                             <div>
-                              <p>Total player: {tournament.totalPlayer}</p>
-                              <p>Date: {tournament.date}</p>
-                              <p>Volume: {tournament.volume}</p>
+                              <p>
+                                Total Player: <span className="text-white">{tournament.totalPlayer}</span>
+                              </p>
+                              <p>
+                                Date: <span className="text-white">{tournament.date}</span>
+                              </p>
+                              <p>
+                                Volume: <span className="text-white">{tournament.volume}</span>
+                              </p>
                             </div>
                             <div>
-                              <p>Prize: {tournament.prize}</p>
-                              <p>Views: {tournament.totalView}</p>
+                              <p>
+                                Total Prize: <span className="text-white">{tournament.prize}</span>
+                              </p>
+                              <p>
+                                Total Views: <span className="text-white">{tournament.totalView}</span>
+                              </p>
                             </div>
                           </div>
                           <div className="bg-[#22222a] p-5 rounded-[25px] mt-5 h-2/3 flex justify-center">
@@ -324,16 +334,16 @@ function Tournament() {
                                       Rank
                                     </TableCell>
                                     <TableCell align="center" sx={{ color: "white" }}>
-                                      Player
+                                      Address
                                     </TableCell>
                                     <TableCell align="center" sx={{ color: "white" }}>
                                       Win
                                     </TableCell>
                                     <TableCell align="center" sx={{ color: "white" }}>
-                                      Loose
+                                      Lose
                                     </TableCell>
                                     <TableCell align="center" sx={{ color: "white" }}>
-                                      Score
+                                      Points
                                     </TableCell>
                                   </TableRow>
                                 </TableHead>
@@ -350,10 +360,10 @@ function Tournament() {
                                         {rank.totalWin}
                                       </TableCell>
                                       <TableCell align="center" sx={{ color: "white" }}>
-                                        {rank.totalLoose}
+                                        {rank.totalLose}
                                       </TableCell>
                                       <TableCell align="center" sx={{ color: "white" }}>
-                                        {rank.score}
+                                        {rank.pts}
                                       </TableCell>
                                     </TableRow>
                                   ))}
