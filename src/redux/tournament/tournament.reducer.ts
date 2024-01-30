@@ -106,8 +106,74 @@ export const updateTournamentStatus = createAsyncThunk(
     }
   },
 );
-export const registerTournament = createAsyncThunk("tournament/register", async ({}: {}, {}) => {});
-export const claimReward = createAsyncThunk("tournament/claim", async ({}: {}, {}) => {});
+export const registerTournament = createAsyncThunk(
+  "tournament/register",
+  async ({ activeSigner, activeAccount, tournamentIndex }: { activeSigner: any; activeAccount: any; tournamentIndex: number }, {}) => {
+    try {
+      if (!activeSigner) return;
+
+      const wsProvider = new WsProvider(AZ_WSS_URL);
+      const api = await ApiPromise.create({ provider: wsProvider });
+      let contract = new ContractPromise(api, tournament_abi, TOURNAMENT_CONTRACT_ADDRESS);
+
+      // @ts-ignore
+      const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "registerTournament", contract, [tournamentIndex]);
+      const { value: gasLimit } = gasLimitResult as any;
+      await api.setSigner(activeSigner!);
+
+      const txn = await contract.tx.registerTournament({ gasLimit: gasLimit, storageDepositLimit: null }, tournamentIndex);
+      const signtx = await txn
+        .signAndSend(activeAccount.address, (result: any) => {
+          if (result.status.isInBlock) {
+            console.log("in a block");
+          } else if (result.status.isFinalized) {
+            console.log("finalized");
+          }
+        })
+        .catch((e) => {
+          console.log("7s200:registerTournament:err", e);
+        });
+      console.log("7s200:registerTournament", signtx);
+    } catch (error) {
+      console.log("7s200:registerTournament:err", error);
+      return;
+    }
+  },
+);
+export const claimReward = createAsyncThunk(
+  "tournament/claim",
+  async ({ activeSigner, activeAccount, tournamentIndex }: { activeSigner: any; activeAccount: any; tournamentIndex: number }, {}) => {
+    try {
+      if (!activeSigner) return;
+
+      const wsProvider = new WsProvider(AZ_WSS_URL);
+      const api = await ApiPromise.create({ provider: wsProvider });
+      let contract = new ContractPromise(api, tournament_abi, TOURNAMENT_CONTRACT_ADDRESS);
+
+      // @ts-ignore
+      const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "claimReward", contract, [tournamentIndex]);
+      const { value: gasLimit } = gasLimitResult as any;
+      await api.setSigner(activeSigner!);
+
+      const txn = await contract.tx.claimReward({ gasLimit: gasLimit, storageDepositLimit: null }, tournamentIndex);
+      const signtx = await txn
+        .signAndSend(activeAccount.address, (result: any) => {
+          if (result.status.isInBlock) {
+            console.log("in a block");
+          } else if (result.status.isFinalized) {
+            console.log("finalized");
+          }
+        })
+        .catch((e) => {
+          console.log("7s200:claimReward:err", e);
+        });
+      console.log("7s200:claimReward", signtx);
+    } catch (error) {
+      console.log("7s200:claimReward:err", error);
+      return;
+    }
+  },
+);
 
 export type TournamentReducer = {
   loading: boolean;
