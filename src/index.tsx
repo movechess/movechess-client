@@ -6,9 +6,9 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import App from "./App";
 import Game from "./components/Chess/Game";
 import PopupProvider from "./components/Popup/PopupProvider";
+import TournamentBoard from "./components/Tournament/TournamentBoard";
 import { store } from "./redux/store";
 import "./styles/main.scss";
-import Tournament from "./components/Tournament/Tournament";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
         element: <App />,
       },
       { path: "/game/:id", element: <Game /> },
-      { path: "/tournament", element: <Tournament /> },
+      { path: "/tournament", element: <TournamentBoard /> },
     ],
   },
 ]);

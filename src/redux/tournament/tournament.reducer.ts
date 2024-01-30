@@ -32,8 +32,6 @@ export const getTournaments = createAsyncThunk("tournament/get", async ({}: {}, 
     return null;
   }
 });
-
-// [TO-DO]
 export const createTournament = createAsyncThunk(
   "tournament/create",
   async ({ activeSigner, activeAccount, reward, totalPlayer }: { activeSigner: any; activeAccount: any; reward: number; totalPlayer: number }, {}) => {
