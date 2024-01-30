@@ -166,7 +166,7 @@ const TournamentBoard: React.FC<{}> = ({}) => {
     let result = null;
     result = tournaments.map((tournament, i) => {
       return (
-        <Tab key={i} value={tournament.id} className="max-h-[50px] mb-1">
+        <Tab key={i} value={tournament.id} className="max-h-[50px] mb-1 !z-50">
           {tournament.name}
         </Tab>
       );
@@ -177,19 +177,24 @@ const TournamentBoard: React.FC<{}> = ({}) => {
   return (
     <>
       <Header />
-      <div className="space-y-8 p-4 md:ml-64 pl-0 pb-0 pt-14 h-screen relative w-auto min-w-fit flex flex-col bg-[#272a33] mx-auto text-white" id="app">
-        <Tabs value="1" orientation="vertical">
-          <TabsHeader
-            className="rounded-none w-32 bg-[#272a33] h-screen py-10"
-            indicatorProps={{
-              className: "bg-gray-900/50 shadow-none !text-gray-900 border-y-0 border-l-0 border-r-1 border-solid",
-            }}
-          >
-            {onShowTournament()}
-          </TabsHeader>
-          <TabsBody className="h-full">{onShowBoard()}</TabsBody>
-        </Tabs>
+      <div className="text-white px-4 py-12 md:ml-64 mt-14 bg-gray-100 h-screen">
+        <div className="lottery-body px-4 py-4 border border-none rounded-xl flex flex-col justify-between items-center space-x-4">
+          <Tabs value="1" orientation="vertical">
+            <TabsHeader
+              className="rounded-none w-32 bg-[#272a33] h-screen py-10"
+              indicatorProps={{
+                className: "bg-gray-900/50 shadow-none !text-gray-900 border-y-0 border-l-0 border-r-1 border-solid",
+              }}
+            >
+              {onShowTournament()}
+            </TabsHeader>
+            <TabsBody className="h-full">{onShowBoard()}</TabsBody>
+          </Tabs>
+        </div>
       </div>
+      {/* <div className="space-y-8 p-4 md:ml-64 pl-0 pb-0 pt-14 h-screen relative w-auto min-w-fit flex flex-col bg-[#272a33] mx-auto text-white" id="app">
+        
+      </div> */}
     </>
   );
 };
