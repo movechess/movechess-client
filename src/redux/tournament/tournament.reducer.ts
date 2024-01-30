@@ -32,6 +32,12 @@ export const getTournaments = createAsyncThunk("tournament/get", async ({}: {}, 
   }
 });
 
+// [TO-DO]
+export const createTournament = createAsyncThunk("tournament/create", async ({}: {}, {}) => {});
+export const updateTournamentStatus = createAsyncThunk("tournament/update", async ({}: {}, {}) => {});
+export const registerTournament = createAsyncThunk("tournament/register", async ({}: {}, {}) => {});
+export const claimReward = createAsyncThunk("tournament/claim", async ({}: {}, {}) => {});
+
 export type TournamentReducer = {
   loading: boolean;
   tournament: any;
