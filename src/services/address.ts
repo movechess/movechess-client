@@ -1,13 +1,10 @@
 // http://github.com/gpxl-dev/truncate-eth-address/blob/main/src/index.ts
 
 // Captures 0x + 4 characters, then the last 4 characters.
-import { InjectedAccount } from "@polkadot/extension-inject/types";
-
 const truncateRegex = /^((?:.){12}).+((?:.){12})$/; // 4-4
 const longTruncateRegex = /^(0x[a-zA-Z0-9]{16})[a-zA-Z0-9]+([a-zA-Z0-9]{6})$/; // 4-6
 const txTruncateRegex = /^(0x[a-zA-Z0-9]{6})[a-zA-Z0-9]+([a-zA-Z0-9]{6})$/; // 6-6
 const truncateSuiRegex = /^((?:.){4}).+((?:.){4})$/; // 4-4
-const ADMIN_ADDRESS = "5D4s8PFzAtY7sdnCCuC6n7nHCio19dPmwC6ytkQrWUZjCaXN";
 
 /**
  * Truncates an ethereum address to the format 0x0000…0000
@@ -54,7 +51,3 @@ export const chunkArray = (array: Array<any>, size: number) => {
   }
   return result;
 };
-
-export const isAdmin = (activeAccount: InjectedAccount | undefined) => {
-  return activeAccount && activeAccount.address === ADMIN_ADDRESS;
-}
