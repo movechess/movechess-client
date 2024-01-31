@@ -215,7 +215,7 @@ const mockTournament: Tournament[] = [
   },
 ];
 
-function Tournament() {
+function TournamentDeprecated() {
   const [tournaments, setTournament] = useState<Tournament[]>([]);
 
   useEffect(() => {
@@ -385,4 +385,4 @@ function Tournament() {
   );
 }
 
-export default Tournament;
+export default TournamentDeprecated;
