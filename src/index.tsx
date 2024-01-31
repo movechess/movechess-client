@@ -24,6 +24,7 @@ const router = createBrowserRouter([
       },
       { path: "/game/:id", element: <Game /> },
       { path: "/tournament", element: <TournamentBoard /> },
+      // { path: "/tournament", element: <Tournament2 /> },
     ],
   },
 ]);

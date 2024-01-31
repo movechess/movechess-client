@@ -43,3 +43,11 @@ export const truncateSuiTx = (txn: string, isShowRawText?: boolean) => {
 export const addressValidator = (address: string) => {
   return /^(0x[a-f0-9]{64})$/g.test(address);
 };
+
+export const chunkArray = (array: Array<any>, size: number) => {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+};

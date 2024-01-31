@@ -106,16 +106,17 @@ export const updateTournamentStatus = createAsyncThunk(
 );
 export const registerTournament = createAsyncThunk(
   "tournament/register",
-  async ({ activeSigner, activeAccount, tournamentIndex }: { activeSigner: any; activeAccount: any; tournamentIndex: number }, {}) => {
+  async ({ activeSigner, activeAccount, tournamentIndex, cb }: { activeSigner: any; activeAccount: any; tournamentIndex: number; cb: (status: boolean) => void }, {}) => {
     try {
       if (!activeSigner) return;
+      console.log("7s200:vien", tournamentIndex);
 
       const wsProvider = new WsProvider(AZ_WSS_URL);
       const api = await ApiPromise.create({ provider: wsProvider });
       let contract = new ContractPromise(api, tournament_abi, TOURNAMENT_CONTRACT_ADDRESS);
 
       // @ts-ignore
-      const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "registerTournament", contract, [tournamentIndex]);
+      const gasLimitResult = await getGasLimit(contract.api, activeAccount.address, "registerTournament", contract, { value: 0 }, [tournamentIndex]);
       const { value: gasLimit } = gasLimitResult as any;
       await api.setSigner(activeSigner!);
 
@@ -126,14 +127,18 @@ export const registerTournament = createAsyncThunk(
             console.log("in a block");
           } else if (result.status.isFinalized) {
             console.log("finalized");
+            cb(true);
           }
         })
         .catch((e) => {
           console.log("7s200:registerTournament:err", e);
+          cb(false);
         });
       console.log("7s200:registerTournament", signtx);
     } catch (error) {
       console.log("7s200:registerTournament:err", error);
+      cb(false);
+
       return;
     }
   },
