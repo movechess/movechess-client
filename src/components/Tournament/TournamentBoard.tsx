@@ -4,7 +4,7 @@ import { useInkathon } from "@scio-labs/use-inkathon";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { createTournament, getTournaments, registerTournament, selectTournament } from "../../redux/tournament/tournament.reducer";
-import { truncateSuiTx } from "../../services/address";
+import { isAdmin, truncateSuiTx } from "../../services/address";
 import Button from "../Button/Button";
 import Header from "../Header/Header";
 
@@ -29,11 +29,11 @@ export function getBrackets(_players: Array<any>) {
       const player1 = players[i] || { player: "TBD", score: 0 };
       const player2 = players[i + 1] || { player: "TBD", score: 0 };
       if (player1.score === player2.score) {
-        round.matches.push({ player1, player2 });
+        round.matches.push({ player1, player2, winner: 0 });
       } else {
         // Simulate duel if scores are different
-        const winner = Math.random() < 0.5 ? { ...player1 } : { ...player2 };
-        round.matches.push({ player1, player2 });
+        const winner = player1.score > player2.score ? 1 : player2.score > player1.score ? 2 : 0;
+        round.matches.push({ player1, player2, winner: winner });
       }
     }
     // Filter out losers and keep only winners for the next round
@@ -56,6 +56,16 @@ export function getBrackets(_players: Array<any>) {
   return tournamentBracket;
 }
 
+export function isRegisteredTournament(address: string, _players: Array<any>) {
+  const players = _players;
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].player === address) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const TournamentBoard: React.FC<{}> = ({}) => {
   const { connect, error, isConnected, activeChain, activeAccount, disconnect, activeSigner } = useInkathon();
 
@@ -69,9 +79,8 @@ const TournamentBoard: React.FC<{}> = ({}) => {
 
   const onShowBoard2 = () => {
     let result = null;
-
     if (tournamentRx.loading || !tournamentRx.tournament) {
-      return <>...Loading</>;
+      return <><div className="h-screen w-full flex justify-center items-center">...Loading</div></>;
     }
 
     result = tournamentRx.tournament.map((tournament: any, index: number) => {
@@ -89,11 +98,11 @@ const TournamentBoard: React.FC<{}> = ({}) => {
               <div className="number"></div>
               <div className={`item ${i % 2 === 0 && round.length > 1 && "show-brackets"}`}>
                 <div className="box">
-                  <div className={`part partOne  ${false ? "looser" : ""} `}>
+                  <div className={`part partOne  ${board.winner == 1 ? "winner" : board.winner == 2 ? "looser" : ""} `}>
                     <div className="value">{board.player1.player ? truncateSuiTx(board.player1.player, true) : "TBD"}</div>
                     <div className="score">{board.player1.player ? board.player1.score : 0}</div>
                   </div>
-                  <div className={`part partOne  ${false ? "looser" : ""} `}>
+                  <div className={`part partOne  ${board.winner == 2 ? "winner" : board.winner == 1 ? "looser" : ""} `}>
                     <div className="value">{board.player2.player ? truncateSuiTx(board.player2.player, true) : "TBD"}</div>
                     <div className="score">{board.player2.player ? board.player2.score : 0}</div>
                   </div>
@@ -109,13 +118,19 @@ const TournamentBoard: React.FC<{}> = ({}) => {
         if (matches.length % 2 === 0 || matches.length === 1) return matches;
         return;
       };
-
       return (
         <TabPanel key={index} value={index} className="py-0 h-full">
           <Tabs value="bracket" className="h-full">
             <TabsBody className="h-full">
+              <Button
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px] !z-50"
+                onClick={() => onHandleRegisterTournament(index)}
+                loading={isLoadingRegisterTournament}
+              >
+                {(activeAccount && players && !isRegisteredTournament(activeAccount.address, players)) ? `Register Tournament ${index}` : `Registered`}
+              </Button>
               <TabPanel key="bracket" value="bracket" className="h-full">
-                <div className="brackets-canvas p-0 lg:pt-0 lg:p-20 h-full">
+                <div className="brackets-canvas p-0 lg:p-20 h-full">
                   {brackets.map((round: any, round_index: number) => (
                     <div className="column" key={round_index}>
                       {onShowMatchesIn(round.matches)}
@@ -123,13 +138,6 @@ const TournamentBoard: React.FC<{}> = ({}) => {
                   ))}
                 </div>
               </TabPanel>
-              <Button
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px] !z-50"
-                onClick={() => onHandleRegisterTournament(index)}
-                loading={isLoadingRegisterTournament}
-              >
-                {`Register Tournament ${index}`}
-              </Button>
             </TabsBody>
           </Tabs>
         </TabPanel>
@@ -147,7 +155,7 @@ const TournamentBoard: React.FC<{}> = ({}) => {
     result = tournamentRx.tournament.map((tournament: any, index: number) => {
       return (
         <Tab key={index} value={index} className="max-h-[50px] mb-1 !z-50">
-          {`tournament ${index}`}
+          {`Tournament ${index}`}
         </Tab>
       );
     });
@@ -182,18 +190,22 @@ const TournamentBoard: React.FC<{}> = ({}) => {
   return (
     <>
       <Header />
-      <div className="text-white px-4 py-12 md:ml-64 mt-14 bg-gray-100 h-screen">
+      <div className="text-white px-4 py-12 md:ml-64 mt-14 bg-gray-100 h-full">
         <div className="lottery-body px-2 py-2 border border-none rounded-xl ">
-          <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px] !z-50" onClick={() => onHandleCreateTournamnet()}>
-            Create Tournament
-          </Button>
+          {/*<Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px] !z-50" onClick={() => onHandleCreateTournamnet()}>*/}
+          {/*  Create Tournament*/}
+          {/*</Button>*/}
           <Tabs key={"7s62"} value="1" orientation="vertical">
             <TabsHeader
-              className="rounded-none w-32 bg-[#272a33] h-screen py-10"
+              className="rounded-none w-32 bg-[#272a33] h-screen !rounded-xl"
               indicatorProps={{
                 className: "bg-gray-900/50 shadow-none !text-gray-900 border-y-0 border-l-0 border-r-1 border-solid",
               }}
             >
+              {isAdmin(activeAccount)
+                && <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 !rounded-xl font-bold text-white leading-[21px] !z-50" onClick={() => onHandleCreateTournamnet()}>
+                Create Tournament
+              </Button>}
               {onShowTournament()}
             </TabsHeader>
             <TabsBody className="h-full">
