@@ -18,11 +18,11 @@ const mockPlayers = [
 ];
 
 function convertToBracket(players: Player[]): Tournament[] {
+  const totalPlayer = players.length;
   const totalRound = Math.ceil(Math.log2(players.length));
-
   let tournamentBracket: Tournament[] = [];
   let rounds: Round[] = [];
-  let matchNumber = 1;
+  let matchIndex = 1;
 
   for (let roundIndex = 1; roundIndex <= totalRound; roundIndex++) {
     const round: Round = {
@@ -36,12 +36,12 @@ function convertToBracket(players: Player[]): Tournament[] {
       const player1 = players[i] || { player: "TBD", score: 0 };
       const player2 = players[i + 1] || { player: "TBD", score: 0 };
       if (player1.score === player2.score) {
-        round.matches.push({ matchNumber, player1, player2, winner: 0 });
+        round.matches.push({ matchNumber: matchIndex, player1, player2, winner: 0 });
       } else {
         const winner = player1.score > player2.score ? 1 : player1.score < player2.score ? 2 : 0;
-        round.matches.push({ matchNumber, player1, player2, winner });
+        round.matches.push({ matchNumber: matchIndex, player1, player2, winner });
       }
-      matchNumber++;
+      matchIndex++;
     }
     // Filter out losers and keep only winners for the next round
     players.length = 0;
@@ -115,7 +115,7 @@ function convertToBracket(players: Player[]): Tournament[] {
         totalLose: 2,
         pts: 0
       }
-    ], totalPlayer: players.length, totalView: "N/A", volume: "N/A", rounds});
+    ], totalPlayer: totalPlayer, totalView: "N/A", volume: "N/A", rounds});
   console.log("Tournament Bracket:", tournamentBracket);
   return tournamentBracket;
 }
